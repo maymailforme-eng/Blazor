@@ -4,9 +4,9 @@
 @inject IDbContextFactory<Movies.Data.MoviesContext> DbFactory
 @inject NavigationManager NavigationManager
 
-<PageTitle>Details</PageTitle>
+@* <PageTitle>Details</PageTitle> *@
 
-<h1>Details</h1>
+@* <h1>Details</h1> *@
 
 <div>
     <h2>Movie</h2>
@@ -15,22 +15,33 @@
     {
         <p><em>Loading...</em></p>
     }
-    else {
-        <dl class="row">
-            <dt class="col-sm-2">Title</dt>
-            <dd class="col-sm-10">@movie.Title</dd>
-            <dt class="col-sm-2">ReleaseDate</dt>
-            <dd class="col-sm-10">@movie.ReleaseDate</dd>
-            <dt class="col-sm-2">Gener</dt>
-            <dd class="col-sm-10">@movie.Gener</dd>
-            <dt class="col-sm-2">URL</dt>
-            <dd class="col-sm-10">@movie.URL</dd>
-            <dt class="col-sm-2">Psoter</dt>
-            <dd class="col-sm-10">@movie.Psoter</dd>
-        </dl>
-        <div>
-            <a href="@($"/movies/edit?id={movie.Id}")">Edit</a> |
-            <a href="@($"/movies")">Back to List</a>
+    else
+    {
+        <div class="container">
+            <div>
+                <dl class="row">
+                    <h1>@movie.Title details</h1>
+                    @* <dt class="col-sm-2">Title</dt>
+                    <dd class="col-sm-10">@movie.Title</dd> *@
+                    <dt class="col-sm-2">ReleaseDate</dt>
+                    <dd class="col-sm-10">@movie.ReleaseDate</dd>
+                    <dt class="col-sm-2">Gener</dt>
+                    <dd class="col-sm-10">@movie.Gener</dd>
+                    <dt class="col-sm-2">URL</dt>
+                    <dd class="col-sm-10"><a href="@movie.URL" target="_blank">@movie.URL</a></dd>
+                    @*             <dt class="col-sm-2">Psoter</dt>
+                    <dd class="col-sm-10">@movie.Psoter</dd> *@
+                </dl>
+                <div>
+                    <a href="@($"/movies/edit?id={movie.Id}")">Edit</a> |
+                    <a href="@($"/movies/delete?id={movie.Id}")">Delete</a> |
+                    <a href="@($"/movies")">Back to List</a>
+                </div>
+            </div>
+            <div class="poster-container">
+                <img src="@movie.Psoter" alt="@movie.Title poster" />
+
+            </div>
         </div>
     }
 </div>

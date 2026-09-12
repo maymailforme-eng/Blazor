@@ -1,0 +1,32 @@
+@* HTTP-клиенты, запросы и ответы. Нужны, когда компонент обращается к веб-API. *@
+@using System.Net.Http
+
+@* Методы для получения и отправки JSON по HTTP, например GetFromJsonAsync(). *@
+@using System.Net.Http.Json
+
+@* Компоненты форм Blazor: EditForm, InputText, InputNumber и средства проверки ввода. *@
+@using Microsoft.AspNetCore.Components.Forms
+
+@* Маршрутизация и навигационные компоненты, например NavLink и Router. *@
+@using Microsoft.AspNetCore.Components.Routing
+
+@* Веб-события Blazor: щелчки мышью, нажатия клавиш, EventCallback и другие. *@
+@using Microsoft.AspNetCore.Components.Web
+
+@* Подключает режимы рендеринга напрямую, поэтому доступна короткая запись @rendermode InteractiveServer. *@
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+
+@* Компонент Virtualize для эффективного отображения больших списков. *@
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+
+@* Взаимодействие C# с JavaScript: вызов JS-функций и получение результатов. *@
+@using Microsoft.JSInterop
+
+@* Корневое пространство имён проекта Converter; здесь, в частности, находится Program. *@
+@using Converter
+
+@* Базовые компоненты приложения: App, Routes, страницы и макеты. *@
+@using Converter.Components
+
+@* Общие переиспользуемые компоненты. Здесь находится наш BaseConverter. *@
+@using Converter.Components.Shared

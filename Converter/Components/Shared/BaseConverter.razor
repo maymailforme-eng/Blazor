@@ -1,0 +1,121 @@
+@using System.Numerics
+@using System.Globalization
+
+@* Общий пользовательский интерфейс для всех шести преобразований. *@
+<section class="converter">
+    <h1>@Title</h1>
+    <p>Введите неотрицательное целое число в @SourceName.</p>
+
+    <div class="mb-3">
+        <label class="form-label" for="@inputId">Число</label>
+        <input id="@inputId" class="form-control" @bind="input" @bind:event="oninput" placeholder="@Placeholder" />
+    </div>
+    <button class="btn btn-primary" @onclick="ConvertNumber">Преобразовать</button>
+
+    @if (result is not null)
+    {
+        <div class="alert alert-success mt-3" role="status">
+            Результат в @TargetName: <strong>@result</strong>
+        </div>
+    }
+    @if (error is not null)
+    {
+        <div class="alert alert-danger mt-3" role="alert">@error</div>
+    }
+</section>
+
+@code {
+    // Параметры поступают из конкретных компонентов (Dec2Bin, Hex2Dec и т. д.).
+    // EditorRequired подсказывает в редакторе, что эти параметры обязательно нужно передать.
+    [Parameter, EditorRequired] public int SourceBase { get; set; }
+    [Parameter, EditorRequired] public int TargetBase { get; set; }
+    [Parameter, EditorRequired] public string SourceName { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string TargetName { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Placeholder { get; set; } = "0";
+
+    // Текущие состояния компонента: текст в поле, успешный результат или сообщение об ошибке.
+    private string input = string.Empty;
+    private string? result;
+    private string? error;
+    private string inputId => $"number-{SourceBase}-{TargetBase}";
+
+    private void ConvertNumber()
+    {
+        // При новом нажатии кнопки очищаем результат предыдущего преобразования.
+        result = null;
+        error = null;
+
+        // Сначала переводим строку в число. Если в ней есть недопустимый символ — показываем ошибку.
+        if (!TryParse(input, SourceBase, out var number))
+        {
+            error = $"Введите корректное неотрицательное число в {SourceName}.";
+            return;
+        }
+
+        // После успешного чтения числа записываем его в нужной системе счисления.
+        result = Format(number, TargetBase);
+    }
+
+    private static bool TryParse(string value, int numberBase, out BigInteger number)
+    {
+        // BigInteger не имеет ограничения размера, в отличие от int или long.
+        number = BigInteger.Zero;
+        value = value.Trim();
+        if (value.Length == 0)
+        {
+            return false;
+        }
+
+        // Читаем цифры слева направо. Например, "101" в двоичной системе:
+        // 0 * 2 + 1, затем 1 * 2 + 0, затем 2 * 2 + 1 = 5.
+        foreach (var character in value)
+        {
+            var digit = character switch
+            {
+                >= '0' and <= '9' => character - '0',
+                >= 'A' and <= 'F' => character - 'A' + 10,
+                >= 'a' and <= 'f' => character - 'a' + 10,
+                _ => -1
+            };
+
+            // Цифра должна существовать в исходной системе: для двоичной допустимы только 0 и 1.
+            if (digit < 0 || digit >= numberBase)
+            {
+                return false;
+            }
+
+            number = number * numberBase + digit;
+        }
+
+        return true;
+    }
+
+    private static string Format(BigInteger number, int numberBase)
+    {
+        // Десятичная запись уже поддерживается методом BigInteger.ToString().
+        if (numberBase == 10)
+        {
+            return number.ToString(CultureInfo.InvariantCulture);
+        }
+
+        if (number.IsZero)
+        {
+            return "0";
+        }
+
+        const string digits = "0123456789ABCDEF";
+        var characters = new Stack<char>();
+
+        // Последовательно делим число на основание системы. Остатки — цифры результата,
+        // но появляются с конца, поэтому складываем их в стек.
+        while (number > BigInteger.Zero)
+        {
+            number = BigInteger.DivRem(number, numberBase, out var remainder);
+            characters.Push(digits[(int)remainder]);
+        }
+
+        // Перебор стека идёт от последней добавленной цифры к первой — это правильный порядок.
+        return new string(characters.ToArray());
+    }
+}

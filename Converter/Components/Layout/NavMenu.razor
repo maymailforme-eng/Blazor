@@ -1,0 +1,55 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Converter</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Главная
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="dec2bin">
+                <span class="bi bi-arrow-left-right" aria-hidden="true"></span> Dec2Bin
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="dec2hex">
+                <span class="bi bi-arrow-left-right" aria-hidden="true"></span> Dec2Hex
+            </NavLink>
+        </div>
+
+        @* Ссылки ведут на маршруты, объявленные директивами @page в компонентах Pages. *@
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="bin2dec">
+                <span class="bi bi-arrow-left-right" aria-hidden="true"></span> Bin2Dec
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="hex2dec">
+                <span class="bi bi-arrow-left-right" aria-hidden="true"></span> Hex2Dec
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="bin2hex">
+                <span class="bi bi-arrow-left-right" aria-hidden="true"></span> Bin2Hex
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="hex2bin">
+                <span class="bi bi-arrow-left-right" aria-hidden="true"></span> Hex2Bin
+            </NavLink>
+        </div>
+    </nav>
+</div>
+

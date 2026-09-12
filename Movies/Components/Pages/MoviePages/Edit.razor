@@ -6,9 +6,9 @@
 
 <PageTitle>Edit</PageTitle>
 
-<h1>Edit</h1>
+@* <h1>Edit</h1>
 
-<h2>Movie</h2>
+<h2>Movie</h2> *@
 <hr />
 @if (Movie is null)
 {
@@ -16,6 +16,7 @@
 }
 else
 {
+    <h1>@Movie.Title edit</h1>
     <div class="row">
         <div class="col-md-4">
             <EditForm method="post" Model="Movie" OnValidSubmit="UpdateMovie" FormName="edit" Enhance>
