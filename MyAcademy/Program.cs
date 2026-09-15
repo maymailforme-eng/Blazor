@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MyAcademy.Components;
 using MyAcademy.Data;
@@ -15,6 +15,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContextFactory<MyAcademyContext>(options =>
     options.UseSqlServer(connectionString)); //Добавляет в контейнер сервисов builder.Services фабрику контекста базы
+
+builder.Services.AddQuickGridEntityFrameworkAdapter();
+
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
                                              //AddDbContextFactory<MyAcademyContext>(options => options.UseSqlServer(connectionString))
 
 var app = builder.Build();
@@ -25,6 +29,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.UseMigrationsEndPoint();
 }
 
 app.UseHttpsRedirection();
