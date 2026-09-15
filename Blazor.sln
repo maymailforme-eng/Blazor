@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies", "Movies\Movies.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Converter", "Converter\Converter.csproj", "{4BA76787-05FB-4763-9BEC-06F37A64B725}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyAcademy", "MyAcademy\MyAcademy.csproj", "{D6B1E9EB-CF8B-47E7-832D-6F60C0200DE0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{4BA76787-05FB-4763-9BEC-06F37A64B725}.Release|x64.Build.0 = Release|Any CPU
 		{4BA76787-05FB-4763-9BEC-06F37A64B725}.Release|x86.ActiveCfg = Release|Any CPU
 		{4BA76787-05FB-4763-9BEC-06F37A64B725}.Release|x86.Build.0 = Release|Any CPU
+		{D6B1E9EB-CF8B-47E7-832D-6F60C0200DE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6B1E9EB-CF8B-47E7-832D-6F60C0200DE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6B1E9EB-CF8B-47E7-832D-6F60C0200DE0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D6B1E9EB-CF8B-47E7-832D-6F60C0200DE0}.Debug|x64.Build.0 = Debug|Any CPU
+		{D6B1E9EB-CF8B-47E7-832D-6F60C0200DE0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D6B1E9EB-CF8B-47E7-832D-6F60C0200DE0}.Debug|x86.Build.0 = Debug|Any CPU
+		{D6B1E9EB-CF8B-47E7-832D-6F60C0200DE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6B1E9EB-CF8B-47E7-832D-6F60C0200DE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6B1E9EB-CF8B-47E7-832D-6F60C0200DE0}.Release|x64.ActiveCfg = Release|Any CPU
+		{D6B1E9EB-CF8B-47E7-832D-6F60C0200DE0}.Release|x64.Build.0 = Release|Any CPU
+		{D6B1E9EB-CF8B-47E7-832D-6F60C0200DE0}.Release|x86.ActiveCfg = Release|Any CPU
+		{D6B1E9EB-CF8B-47E7-832D-6F60C0200DE0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

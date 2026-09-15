@@ -1,0 +1,55 @@
+@page "/directions"
+@using Microsoft.EntityFrameworkCore
+@using MyAcademy.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<MyAcademyContext> DbFactory
+
+<PageTitle>Направления обучения</PageTitle>
+
+<h1>Направления обучения</h1>
+
+<p>
+    <a class="btn btn-primary" href="/directions/create">Создать направление</a>
+</p>
+
+@if (context is null)
+{
+    <p><em>Загрузка...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Код</th>
+                <th>Название</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var direction in context.Directions.OrderBy(d => d.DirectionName))
+            {
+                <tr>
+                    <td>@direction.DirectionId</td>
+                    <td>@direction.DirectionName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private MyAcademyContext? context;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (context is not null)
+        {
+            await context.DisposeAsync();
+        }
+    }
+}
