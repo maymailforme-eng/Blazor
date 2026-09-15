@@ -1,4 +1,5 @@
 ﻿@page "/movies"
+@rendermode InteractiveServer
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Movies.Models
@@ -14,7 +15,19 @@
     <a href="movies/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="context.Movie">
+<div class="mb-3">
+    <label for="movies-per-page" class="form-label">Фильмов на странице:</label>
+    @* При изменении списка выбранное значение записывается в itemsPerPage. *@
+    <select id="movies-per-page" class="form-select w-auto" @bind="itemsPerPage" @bind:after="ChangeItemsPerPage">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+    </select>
+</div>
+
+@* Pagination связывает QuickGrid с состоянием текущей страницы и её размером. *@
+<QuickGrid Class="table" Items="context.Movie" Pagination="pagination">
 @*     <PropertyColumn Property="movie => movie.Title" /> *@
     <TemplateColumn Context="movie">
         <a href="@($"movies/details?id={movie.Id}")">@movie.Title</a>
@@ -29,12 +42,29 @@
        </TemplateColumn> *@
 </QuickGrid>
 
+@* Paginator отображает кнопки перехода между страницами. *@
+<Paginator State="pagination" />
+
 @code {
     private MoviesContext context = default!;
+
+    // Объект хранит номер текущей страницы и количество фильмов на ней.
+    private PaginationState pagination = new() { ItemsPerPage = 5 };
+
+    // Значение, выбранное пользователем в выпадающем списке.
+    private int itemsPerPage = 5;
 
     protected override void OnInitialized()
     {
         context = DbFactory.CreateDbContext();
+    }
+
+    // После выбора нового размера страницы обновляем QuickGrid
+    // и возвращаем пользователя на первую страницу.
+    private async Task ChangeItemsPerPage()
+    {
+        pagination.ItemsPerPage = itemsPerPage;
+        await pagination.SetCurrentPageIndexAsync(0);
     }
 
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
