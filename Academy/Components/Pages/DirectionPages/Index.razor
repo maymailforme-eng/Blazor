@@ -1,4 +1,6 @@
 ﻿@page "/directions"
+@rendermode InteractiveServer //обновление страницы (что бы при перелистывание филмов страница обновлялась)
+
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Academy.Models
@@ -6,26 +8,44 @@
 @implements IAsyncDisposable
 @inject IDbContextFactory<Academy.Data.AcademyContext> DbFactory
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Directions</PageTitle>
 
-<h1>Index</h1>
+<h1>Направление обучения</h1>
 
-<p>
-    <a href="directions/create">Create New</a>
-</p>
+<div class="controls">
+    <p>
+        <a href="directions/create" class="btn btn-primary">Добавить</a>
+    </p>
+    <div>
+        <label for="items-per-page">Items per page:</label>
+        <select @bind="pagination.ItemsPerPage" id="items-per-page">
+            <option value="3">3</option>
+            <option value="5">5</option>
+            <option value="8">8</option>
+            <option value="10">10</option>
 
-<QuickGrid Class="table" Items="context.Directions">
-    <PropertyColumn Property="direction => direction.direction_name" />
+        </select>
+    </div>
+</div>
 
-    <TemplateColumn Context="direction">
-        <a href="@($"directions/edit?direction_id={direction.direction_id}")">Edit</a> |
-        <a href="@($"directions/details?direction_id={direction.direction_id}")">Details</a> |
-        <a href="@($"directions/delete?direction_id={direction.direction_id}")">Delete</a>
-    </TemplateColumn>
-</QuickGrid>
+<div>
+    <div class="grid-container">
+        <QuickGrid Class="table" Items="context.Directions" Pagination="pagination">
+            <PropertyColumn Property="direction => direction.direction_id" Class="direction-id" />
+            <PropertyColumn Property="direction => direction.direction_name" Class="direction-name" />
+
+            <TemplateColumn Context="direction">
+                <a href="@($"directions/details?direction_id={direction.direction_id}")">Details</a> |
+            </TemplateColumn>
+        </QuickGrid>
+        <Paginator State="pagination" />
+    </div>
+</div>
 
 @code {
     private AcademyContext context = default!;
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 5 };
 
     protected override void OnInitialized()
     {
