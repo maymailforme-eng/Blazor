@@ -1,11 +1,13 @@
 ﻿@page "/directions"
 @rendermode InteractiveServer //обновление страницы (что бы при перелистывание филмов страница обновлялась)
+@implements IDisposable
 
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Academy.Models
 @using Academy.Data
-@implements IAsyncDisposable
+
+
 @inject IDbContextFactory<Academy.Data.AcademyContext> DbFactory
 
 <PageTitle>Directions</PageTitle>
@@ -18,9 +20,17 @@
     </p>
 </div>
 
+
+<input type="search"
+       class="form-control mb-3"
+       placeholder="Поиск по названию направления..."
+       @bind="searchText"
+       @bind:event="oninput"
+       @bind:after="OnSearchChanged" />
+
 <div>
     <div class="grid-container">
-        <QuickGrid Class="table" Items="context.Directions" Pagination="pagination">
+        <QuickGrid TGridItem="Direction" @ref="grid" Class="table" ItemsProvider="LoadDirections" Pagination="pagination">
             <PropertyColumn Property="direction => direction.direction_id" Class="direction-id" Title="Id" Sortable="true"/>
             <PropertyColumn Property="direction => direction.direction_name" Class="direction-name" Title="Название направления" Sortable="true"/>
 
@@ -43,14 +53,110 @@
 </div>
 
 @code {
-    private AcademyContext context = default!;
+
 
     PaginationState pagination = new PaginationState { ItemsPerPage = 5 };
+    private QuickGrid<Direction> grid = default!; //ссылка на таблицу
+    private string searchText = string.Empty;
+    private CancellationTokenSource? searchDebounceCts; //токен отмены
 
-    protected override void OnInitialized()
+
+    //метод поставщик данных из SQL
+    private async ValueTask<GridItemsProviderResult<Direction>> LoadDirections(
+     GridItemsProviderRequest<Direction> request)
     {
-        context = DbFactory.CreateDbContext();
+        try
+        {
+            await using AcademyContext context = await DbFactory.CreateDbContextAsync();
+
+            IQueryable<Direction> query = context.Directions.AsNoTracking(); //AsNoTracking() - пометка что метод ни чего не меняет в БД, снижает расход памяти
+
+            string search = searchText.Trim();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(direction =>
+                    direction.direction_name.Contains(search)); //добовляем к запросу искомую строку
+            }
+
+            int totalCount = await query.CountAsync(request.CancellationToken); //запрос что бы узнать общее количество подходящее под поисковый запрос
+                                                                                //request.CancellationToken - позволяет прервать операцию, токен отмены QuickGrid у объекта request
+
+
+
+            List<Direction> directions = await request      //запрос список направлениий 
+                .ApplySorting(query)                        //добовляет в запрос сортировку выбранную пользователем
+                .Skip(request.StartIndex)                   //панагация - начальная страница
+                .Take(request.Count ?? int.MaxValue)        //панагация - количество строк на странице
+                .ToListAsync(request.CancellationToken);    //возможность прервать операцию   
+
+            return GridItemsProviderResult.From(directions, totalCount); //возращает выборку 
+        }
+        catch (OperationCanceledException)
+        when (request.CancellationToken.IsCancellationRequested)
+        {
+            return GridItemsProviderResult.From(Array.Empty<Direction>(), 0);
+        }
+
+        catch (Microsoft.Data.SqlClient.SqlException)
+            when (request.CancellationToken.IsCancellationRequested)
+        {
+            return GridItemsProviderResult.From(Array.Empty<Direction>(), 0);
+        }
+
+
     }
 
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+
+
+    private async Task OnSearchChanged()
+    {
+        searchDebounceCts?.Cancel(); //сброс предыдущей задержки ожидания
+
+        var currentCts = new CancellationTokenSource(); //токен отмены
+        searchDebounceCts = currentCts; 
+
+        try
+        {
+            await Task.Delay(350, currentCts.Token);
+
+            // Пока ждали, пользователь мог ввести новый символ.
+            // Тогда этот запуск поиска уже неактуален.
+            if (!ReferenceEquals(searchDebounceCts, currentCts)) //защита от запуска старого метода, т.к. Cancel() не отменяет метод мгновенно
+            {
+                return;
+            }
+
+            if (pagination.CurrentPageIndex == 0) //если  находимся на первой странице
+            {
+                await grid.RefreshDataAsync(); //обновляем данные
+            }
+            else
+            {
+                //находимся не на первой странице, переводим пагинатор в начало, что запустит также обновление данных
+                await pagination.SetCurrentPageIndexAsync(0);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Ожидаемая ситуация: пользователь продолжил ввод.
+        }
+        finally
+        { 
+            if (ReferenceEquals(searchDebounceCts, currentCts)) //обнуляем только если ссылки одинаковы, что бы не затереть новый запрос
+            {
+                searchDebounceCts = null;
+            }
+
+            currentCts.Dispose(); //освобождение ресурсов токена
+        }
+    }
+
+
+    public void Dispose()
+    {
+        searchDebounceCts?.Cancel();
+        searchDebounceCts?.Dispose();
+    }
+   
 }
