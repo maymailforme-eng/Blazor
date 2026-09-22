@@ -16,29 +16,29 @@
     <p>
         <a href="directions/create" class="btn btn-primary">Добавить</a>
     </p>
-    <div>
-        <label for="items-per-page">Items per page:</label>
-        <select @bind="pagination.ItemsPerPage" id="items-per-page">
-            <option value="3">3</option>
-            <option value="5">5</option>
-            <option value="8">8</option>
-            <option value="10">10</option>
-
-        </select>
-    </div>
 </div>
 
 <div>
     <div class="grid-container">
         <QuickGrid Class="table" Items="context.Directions" Pagination="pagination">
-            <PropertyColumn Property="direction => direction.direction_id" Class="direction-id" />
-            <PropertyColumn Property="direction => direction.direction_name" Class="direction-name" />
+            <PropertyColumn Property="direction => direction.direction_id" Class="direction-id" Title="Id" Sortable="true"/>
+            <PropertyColumn Property="direction => direction.direction_name" Class="direction-name" Title="Название направления" Sortable="true"/>
 
             <TemplateColumn Context="direction">
-                <a href="@($"directions/details?direction_id={direction.direction_id}")">Details</a> |
+                <a href="@($"directions/details?direction_id={direction.direction_id}")">Details</a>
             </TemplateColumn>
         </QuickGrid>
         <Paginator State="pagination" />
+        <div class="table-footer">
+            <label for="items-per-page">Количество строк на странице</label>
+            <select @bind="pagination.ItemsPerPage" id="items-per-page" class="form-select form-select-sm">
+                <option value="3">3</option>
+                <option value="5">5</option>
+                <option value="8">8</option>
+                <option value="10">10</option>
+
+            </select>
+        </div>
     </div>
 </div>
 

@@ -12,3 +12,27 @@
 {
     height:58vh; /*vh - Viewport Heigth (Высота видимой части страницы)*/
 }
+
+.table-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+}
+
+    .table-footer label {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .table-footer select {
+        width: auto;
+        min-width: 70px;
+    }

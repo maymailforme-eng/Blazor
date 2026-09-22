@@ -1,38 +1,94 @@
 ﻿@page "/groups"
+@rendermode InteractiveServer //обновление страницы (что бы при перелистывание филмов страница обновлялась)
+
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Academy.Models
 @using Academy.Data
-@implements IAsyncDisposable
 @inject IDbContextFactory<Academy.Data.AcademyContext> DbFactory
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Groups</PageTitle>
 
-<h1>Index</h1>
+<h1>Группы</h1>
 
-<p>
-    <a href="groups/create">Create New</a>
-</p>
+<div class="controls">
+    <p>
+        <a href="groups/create" class="btn btn-primary">Добавить</a>
+    </p>
+   
+</div>
 
-<QuickGrid Class="table" Items="context.Groups">
-    <PropertyColumn Property="group => group.group_name" />
-    <PropertyColumn Property="group => group.direction" />
-    <PropertyColumn Property="group => group.start_date" />
-    <PropertyColumn Property="group => group.start_time" />
-    <PropertyColumn Property="group => group.learning_days" />
+<input type="search" class="form-control"
+       placeholder="Поиск по названию группы..."
+       @bind="searchText" 
+       @bind:event="oninput" 
+       @bind:after="OnSearchChanged" />
 
-    <TemplateColumn Context="group">
-        <a href="@($"groups/details?group_id={group.group_id}")">Details</a> |
-    </TemplateColumn>
-</QuickGrid>
+
+<div>
+    <div class="grid-container"> 
+        <QuickGrid Class="table" Items="filteredGroups" Pagination="pagination">
+            <PropertyColumn Property="group => group.group_name" Title="Название группы" Sortable="true"/>
+            <PropertyColumn Property="group => group.direction" Title="Направление обучения" Sortable="true"/>
+            <PropertyColumn Property="group => group.start_date" title="Дата начала обучения" Sortable="true"/>
+            <PropertyColumn Property="group => group.start_time" Title="Начало занятий" Sortable="true"/>
+            <PropertyColumn Property="group => group.learning_days" title="Количество дней" Sortable="true" />
+
+            <TemplateColumn Context="group">
+                <a href="@($"groups/details?group_id={group.group_id}")">Details</a>
+            </TemplateColumn>
+        </QuickGrid>
+        <Paginator State="pagination" />
+        <div class="table-footer">
+            <label for="items-per-page">Количество строк на странице</label>
+            <select @bind="pagination.ItemsPerPage" id="items-per-page" class="form-select form-select-sm">
+                <option value="3">3</option>
+                <option value="5">5</option>
+                <option value="8">8</option>
+                <option value="10">10</option>
+            </select>
+        </div>
+
+    </div>
+</div>
+
 
 @code {
-    private AcademyContext context = default!;
+    // private AcademyContext context = default!;
+    private List<Group> allGroups = []; //контейнер под выгрузку всех групп
+
+    PaginationState pagination = new PaginationState { ItemsPerPage = 5 };
+
+
+    private string searchText = string.Empty;
+    private IQueryable<Group> filteredGroups = default!;
+
+    private async Task OnSearchChanged()
+    {
+        string search = searchText.Trim(); //обрезаем пробелы
+
+        filteredGroups = string.IsNullOrEmpty(search)
+            ? allGroups.AsQueryable() //если строка поиска пуста приводим весь список к типу Queryable
+            : allGroups
+                .Where(group => group.group_name.Contains(
+                    search,
+                    StringComparison.OrdinalIgnoreCase))
+                .AsQueryable();
+
+        await pagination.SetCurrentPageIndexAsync(0); //переключаем страницы в начальное положение
+    }
+
+
 
     protected override void OnInitialized()
     {
-        context = DbFactory.CreateDbContext();
+        using var context = DbFactory.CreateDbContext();
+
+        allGroups = context.Groups
+            .AsNoTracking()
+            .ToList();
+
+        filteredGroups = allGroups.AsQueryable();
     }
 
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }
