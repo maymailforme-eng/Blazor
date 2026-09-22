@@ -9,9 +9,11 @@
 
 <PageTitle>Groups</PageTitle>
 
-<h1>Группы</h1>
+
 
 <div class="controls">
+
+    <h1>Группы</h1>
     <p>
         <a href="groups/create" class="btn btn-primary">Добавить</a>
     </p>
@@ -32,7 +34,8 @@
             <PropertyColumn Property="group => group.direction" Title="Направление обучения" Sortable="true"/>
             <PropertyColumn Property="group => group.start_date" title="Дата начала обучения" Sortable="true"/>
             <PropertyColumn Property="group => group.start_time" Title="Начало занятий" Sortable="true"/>
-            <PropertyColumn Property="group => group.learning_days" title="Количество дней" Sortable="true" />
+           @*  <PropertyColumn Property="group => group.learning_days" title="Количество дней" Sortable="true" /> *@
+               <PropertyColumn Property="group => new Week((int)group.learning_days)" />
 
             <TemplateColumn Context="group">
                 <a href="@($"groups/details?group_id={group.group_id}")">Details</a>
