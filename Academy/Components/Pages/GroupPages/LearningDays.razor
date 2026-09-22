@@ -3,8 +3,9 @@
 <ul class="learning-days">
     @for(int i = 0; i < 7; ++i)
     {
+        int index = i;
         <li>
-            <input type="checkbox" id="@Week.DAYNAMES[i]" @bind="@days[i]" />
+            <input type="checkbox" id="@Week.DAYNAMES[i]" @bind="@days[i]" @bind:after="Compress" />
             <label for="@Week.DAYNAMES[i]" > @Week.DAYNAMES[i]</label>
 
         </li>
@@ -18,6 +19,18 @@
 
     [Parameter]
     public Models.Group Group { get; set; }
+
+    int mask;
+    void Compress()
+    {
+        mask = 0;
+        for(byte i = 0; i < 7; i++)
+        {
+            if (days[i]) mask |= (byte)(1 << i);
+        }
+        Group.learning_days = mask;
+
+    }
 
     void Extract()
     {
