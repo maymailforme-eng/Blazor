@@ -34,5 +34,10 @@ namespace Academy.Models
             get => $"{last_name} {first_name} {middle_name}"; 
         }
 
+        public int Age
+        { 
+            get=> (int)((DateOnly.FromDateTime(DateTime.Now).DayNumber - birth_date.DayNumber)/365.25);
+        }
+
     }
 }
