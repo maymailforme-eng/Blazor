@@ -21,11 +21,18 @@ namespace Academy.Models
         [Required]
         [DataType(DataType.Date)]
         [RangeAttribute(typeof(DateOnly), "1950-01-01", "2020-01-01")]
-        DateOnly birth_date { get; set; }
+        public DateOnly birth_date { get; set; }
 
         public string? email { get; set; }
         public string? phone { get; set; }
         public byte[]? photo { get; set; }
+
+        //Calculated properties
+
+        public string FullName
+        { 
+            get => $"{last_name} {first_name} {middle_name}"; 
+        }
 
     }
 }
