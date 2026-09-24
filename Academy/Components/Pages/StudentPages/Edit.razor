@@ -46,6 +46,12 @@ else
                     <ValidationMessage For="() => Student.middle_name" class="text-danger" />
                 </div>
                 <div class="mb-3">
+                <span class="text-danger">*</span>
+                    <label for="birth_date" class="form-label">birth_date:</label>
+                    <InputDate id="birth_date" @bind-Value="Student.birth_date" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Student.birth_date" class="text-danger" />
+                </div>
+                <div class="mb-3">
                     <label for="email" class="form-label">email:</label>
                     <InputText id="email" @bind-Value="Student.email" class="form-control" />
                     <ValidationMessage For="() => Student.email" class="text-danger" />
