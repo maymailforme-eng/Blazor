@@ -17,7 +17,8 @@
     </p>
 </div>
 
-<QuickGrid Class="table" Items="students">
+@* <QuickGrid Class="table" Items="students"> *@
+<QuickGrid Class="table" Items="FilteredStudents">
 
 @*  <PropertyColumn Property="student => student.last_name" />
     <PropertyColumn Property="student => student.first_name" />
@@ -58,12 +59,23 @@
 
     GridSort<Student> sortBy = GridSort<Student>.ByAscending(s => s.last_name).ThenAscending(s => s.first_name);
 
+    [SupplyParameterFromQuery]
+    string? Filter { get; set; }
+
     protected override void OnInitialized()
     {
         context = DbFactory.CreateDbContext();
         students = context.Students.Include(s => s.Group).ThenInclude(g => g.Direction);
-        
+
     }
 
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
+
+    IQueryable<Academy.Models.Student> FilteredStudents =>
+    // context.Students.AsEnumerable().Where(s => s.FullName.Contains(Filter ?? string.Empty)).AsQueryable();
+    context.Students.Include(s => s.Group)
+                    .ThenInclude(g => g.Direction)
+                    .AsEnumerable().Where(s => s.FullName
+                    .Contains(Filter ?? string.Empty))
+                    .AsQueryable();
 }
