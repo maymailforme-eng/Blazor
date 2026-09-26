@@ -1,0 +1,36 @@
+﻿@* <h3>Photo</h3> *@
+
+
+<div>
+    <div> class="photo-area"
+        @if(Human.photo != null)
+        {
+            <img src="data:image; base64, @Convert.ToBase64String(Human.photo)" alt="Photo"/>
+        }
+    </div>
+    @if(AllowChange)
+    {
+        <InputFile OnChange="LoadPhoto" />
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Models.Human Human { get; set; }
+
+    [Parameter]
+    public bool AllowChange { get; set; }
+
+    IBrowserFile url { get; set; }
+
+    async Task LoadPhoto(InputFileChangeEventArgs e)
+    {
+        url = e.File;
+        MemoryStream ms = new MemoryStream();
+
+        await url.OpenReadStream().CopyToAsync(ms);
+
+        Human.photo = ms.ToArray();
+        ms.Close();
+    }
+}

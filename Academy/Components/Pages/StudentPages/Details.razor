@@ -16,26 +16,37 @@
         <p><em>Loading...</em></p>
     }
     else {
-        <dl class="row">
-            <dt class="col-sm-2">group</dt>
-            <dd class="col-sm-10">@student.group</dd>
-            <dt class="col-sm-2">last_name</dt>
-            <dd class="col-sm-10">@student.last_name</dd>
-            <dt class="col-sm-2">first_name</dt>
-            <dd class="col-sm-10">@student.first_name</dd>
-            <dt class="col-sm-2">middle_name</dt>
-            <dd class="col-sm-10">@student.middle_name</dd>
-            <dt class="col-sm-2">birth_date</dt>
-            <dd class="col-sm-10">@student.birth_date</dd>
-            <dt class="col-sm-2">email</dt>
-            <dd class="col-sm-10">@student.email</dd>
-            <dt class="col-sm-2">phone</dt>
-            <dd class="col-sm-10">@student.phone</dd>
-            <dt class="col-sm-2">photo</dt>
-            <dd class="col-sm-10">@student.photo</dd>
-        </dl>
+        <div class="controls">
+            <h1>@student.FullName</h1>
+            <a href="@($"/students/edit?stud_id={student.stud_id}")" class="btn btn-primary">Edit</a>
+        </div>
+
+        <div class="human-container"> 
+            <dl class="row">
+
+                <dt class="col-sm-2">last_name</dt>
+                <dd class="col-sm-10">@student.last_name</dd>
+                <dt class="col-sm-2">first_name</dt>
+                <dd class="col-sm-10">@student.first_name</dd>
+                <dt class="col-sm-2">middle_name</dt>
+                <dd class="col-sm-10">@student.middle_name</dd>
+                <dt class="col-sm-2">birth_date</dt>
+                <dd class="col-sm-10">@student.birth_date</dd>
+                <dt class="col-sm-2">group</dt>
+                <dd class="col-sm-10">@student.Group.group_name </dd>
+                <dt class="col-sm-2">direction</dt>
+                <dd class="col-sm-10">@student.Group.Direction.direction_name </dd>
+                <dt class="col-sm-2">email</dt>
+                <dd class="col-sm-10">@student.email</dd>
+                <dt class="col-sm-2">phone</dt>
+                <dd class="col-sm-10">@student.phone</dd>
+                @*             <dt class="col-sm-2">photo</dt>
+                <dd class="col-sm-10">@student.photo</dd> *@
+            </dl>
+            <Photo Human="student" />
+        </div>
         <div>
-            <a href="@($"/students/edit?stud_id={student.stud_id}")">Edit</a> |
+@*             <a href="@($"/students/edit?stud_id={student.stud_id}")">Edit</a> | *@
             <a href="@($"/students")">Back to List</a>
         </div>
     }
@@ -50,7 +61,9 @@
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
-        student = await context.Students.FirstOrDefaultAsync(m => m.stud_id == stud_id);
+        student = await context.Students.Include(s=>s.Group)
+                                        .ThenInclude(g=>g.Direction)
+                                        .FirstOrDefaultAsync(m => m.stud_id == stud_id);
 
         if (student is null)
         {
