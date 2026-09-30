@@ -11,24 +11,28 @@
 }
 
 .photo-area {
-    width: 50%;
-    text-align: center;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
     .photo-area > div {
-        width: 90%;
-        height: 90%;
+        width: 100%;
+        max-width: 300px;
+        height: 400px;
+        margin: 0 auto;
         border: solid 1px;
     }
 
     .photo-area img {
-        object-fit: cover;
-        min-width: 300px;
-        min-height: 400px;
         width: 100%;
         height: 100%;
+        object-fit: cover;
     }
 
 .choose-photo {
-    width: 90%;
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    margin: 10px auto 0;
 }
