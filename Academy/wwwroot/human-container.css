@@ -4,7 +4,15 @@
     justify-content:space-between;
 }
 
-.photo-area > img
-{
+
+.human-text-fields{
+    width:40%;
+
+}
+.photo-area > img {
+    width: 90%;
+}
+
+.choose-photo{
     width:90%;
 }
