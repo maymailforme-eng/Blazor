@@ -1,4 +1,6 @@
 ﻿@page "/students/create"
+@rendermode InteractiveServer
+
 @using Microsoft.EntityFrameworkCore
 @using Academy.Models
 @inject IDbContextFactory<Academy.Data.AcademyContext> DbFactory
@@ -11,18 +13,20 @@
 <h2>Student</h2>
 <hr />
 <div class="row">
-    <div class="col-md-12">
+@*     <div class="col-md-12"> *@
         <EditForm method="post" Model="Student" OnValidSubmit="AddStudent" FormName="create" Enhance>
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" role="alert"/>
+
+
             <div class="human-container">
                 <div class="human-text-fields">
-                    <div class="mb-3">
-                        <span class="text-danger">*</span>
-                        <label for="group" class="form-label">group:</label>
-                        <InputNumber id="group" @bind-Value="Student.group" class="form-control" aria-required="true" />
-                        <ValidationMessage For="() => Student.group" class="text-danger" />
-                    </div>
+                    @* <div class="mb-3">
+                    <span class="text-danger">*</span>
+                    <label for="group" class="form-label">group:</label>
+                    <InputNumber id="group" @bind-Value="Student.group" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => Student.group" class="text-danger" />
+                    </div> *@
                     <div class="mb-3">
                         <span class="text-danger">*</span>
                         <label for="last_name" class="form-label">last_name:</label>
@@ -56,21 +60,30 @@
                         <InputText id="phone" @bind-Value="Student.phone" class="form-control" />
                         <ValidationMessage For="() => Student.phone" class="text-danger" />
                     </div>
+
+
+                    <CB_Groups Student="Student" />
+
                 </div>
-                @* <div class="mb-3">
-                <label for="photo" class="form-label">photo:</label>
-                <InputText id="photo" @bind-Value="Student.photo" class="form-control" />
-                <ValidationMessage For="() => Student.photo" class="text-danger" />
-                </div>  *@
-                
+
                 <Photo Human="@Student" AllowChange=true />
+
             </div>
+
+            @* <div class="mb-3">
+               <label for="photo" class="form-label">photo:</label>
+               <InputText id="photo" @bind-Value="Student.photo" class="form-control" />
+               <ValidationMessage For="() => Student.photo" class="text-danger" />
+               </div>  *@
+                
+
+
 
             <button type="submit" class="btn btn-primary">Create</button>
         </EditForm>
     </div>
-</div>
-
+@* </div>
+ *@
 <div>
     <a href="/students">Back to List</a>
 </div>

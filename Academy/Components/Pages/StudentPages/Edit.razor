@@ -45,7 +45,7 @@ else
 							</InputSelect>
 							<ValidationMessage For="() => Student.group" class="text-danger" />
 						</div> *@
-						<CB_Groups Student="Student"/>
+						
 						<div class="mb-3">
 							<span class="text-danger">*</span>
 							<label for="last_name" class="form-label">last_name:</label>
@@ -79,6 +79,9 @@ else
 							<InputText id="phone" @bind-Value="Student.phone" class="form-control" />
 							<ValidationMessage For="() => Student.phone" class="text-danger" />
 						</div>
+
+						<CB_Groups Student="Student" />
+
 					</div>
 
 					<Photo Human="@Student" AllowChange=true />
