@@ -31,7 +31,16 @@ else
 						<div class="mb-3">
 							<span class="text-danger">*</span>
 							<label for="group" class="form-label">group:</label>
-							<InputNumber id="group" @bind-Value="Student.group" class="form-control" aria-required="true" />
+							@* <InputNumber id="group" @bind-Value="Student.group" class="form-control" aria-required="true" /> *@
+							<InputSelect id="group" @bind-Value="Student.group" class="form-control">
+								@using(Academy.Data.AcademyContext context = DbFactory.CreateDbContext())
+								{
+									foreach(Group group in context.Groups)
+									{
+										<option value="@group.group_id">@group.group_name</option>
+									}
+								}
+							</InputSelect>
 							<ValidationMessage For="() => Student.group" class="text-danger" />
 						</div>
 						<div class="mb-3">
