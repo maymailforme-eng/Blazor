@@ -1,69 +1,81 @@
 ﻿@page "/teachers/edit"
+@rendermode InteractiveServer
+
 @using Microsoft.EntityFrameworkCore
 @using Academy.Models
+@using Academy.Components.Controls;
+
 @inject IDbContextFactory<Academy.Data.AcademyContext> DbFactory
 @inject NavigationManager NavigationManager
 
 <PageTitle>Edit</PageTitle>
 
-<h1>Edit</h1>
 
-<h2>Teacher</h2>
-<hr />
 @if (Teacher is null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
+    <h1>@Teacher.FullName</h1>
+    <hr/>
+
     <div class="row">
-        <div class="col-md-4">
             <EditForm method="post" Model="Teacher" OnValidSubmit="UpdateTeacher" FormName="edit" Enhance>
                 <DataAnnotationsValidator />
                 <ValidationSummary role="alert"/>
-                <input type="hidden" name="Teacher.teacher_id" value="@Teacher.teacher_id" />
-                <div class="mb-3">
-                    <label for="work_since" class="form-label">work_since:</label>
-                    <InputDate id="work_since" @bind-Value="Teacher.work_since" class="form-control" />
-                    <ValidationMessage For="() => Teacher.work_since" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                    <label for="rate" class="form-label">rate:</label>
-                    <InputNumber id="rate" @bind-Value="Teacher.rate" class="form-control" />
-                    <ValidationMessage For="() => Teacher.rate" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                <span class="text-danger">*</span>
-                    <label for="last_name" class="form-label">last_name:</label>
-                    <InputText id="last_name" @bind-Value="Teacher.last_name" class="form-control" aria-required="true"/>
-                    <ValidationMessage For="() => Teacher.last_name" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                <span class="text-danger">*</span>
-                    <label for="first_name" class="form-label">first_name:</label>
-                    <InputText id="first_name" @bind-Value="Teacher.first_name" class="form-control" aria-required="true"/>
-                    <ValidationMessage For="() => Teacher.first_name" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                    <label for="middle_name" class="form-label">middle_name:</label>
-                    <InputText id="middle_name" @bind-Value="Teacher.middle_name" class="form-control" />
-                    <ValidationMessage For="() => Teacher.middle_name" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                <span class="text-danger">*</span>
-                    <label for="birth_date" class="form-label">birth_date:</label>
-                    <InputDate id="birth_date" @bind-Value="Teacher.birth_date" class="form-control" aria-required="true"/>
-                    <ValidationMessage For="() => Teacher.birth_date" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label">email:</label>
-                    <InputText id="email" @bind-Value="Teacher.email" class="form-control" />
-                    <ValidationMessage For="() => Teacher.email" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                    <label for="phone" class="form-label">phone:</label>
-                    <InputText id="phone" @bind-Value="Teacher.phone" class="form-control" />
-                    <ValidationMessage For="() => Teacher.phone" class="text-danger" />
+                <div class="human-container">
+
+                    <div class="human-text-fields">
+                        <input type="hidden" name="Teacher.teacher_id" value="@Teacher.teacher_id" />
+                        
+                        <div class="mb-3">
+                            <span class="text-danger">*</span>
+                            <label for="last_name" class="form-label">last_name:</label>
+                            <InputText id="last_name" @bind-Value="Teacher.last_name" class="form-control" aria-required="true" />
+                            <ValidationMessage For="() => Teacher.last_name" class="text-danger" />
+                        </div>
+                        <div class="mb-3">
+                            <span class="text-danger">*</span>
+                            <label for="first_name" class="form-label">first_name:</label>
+                            <InputText id="first_name" @bind-Value="Teacher.first_name" class="form-control" aria-required="true" />
+                            <ValidationMessage For="() => Teacher.first_name" class="text-danger" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="middle_name" class="form-label">middle_name:</label>
+                            <InputText id="middle_name" @bind-Value="Teacher.middle_name" class="form-control" />
+                            <ValidationMessage For="() => Teacher.middle_name" class="text-danger" />
+                        </div>
+                        <div class="mb-3">
+                            <span class="text-danger">*</span>
+                            <label for="birth_date" class="form-label">birth_date:</label>
+                            <InputDate id="birth_date" @bind-Value="Teacher.birth_date" class="form-control" aria-required="true" />
+                            <ValidationMessage For="() => Teacher.birth_date" class="text-danger" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">email:</label>
+                            <InputText id="email" @bind-Value="Teacher.email" class="form-control" />
+                            <ValidationMessage For="() => Teacher.email" class="text-danger" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">phone:</label>
+                            <InputText id="phone" @bind-Value="Teacher.phone" class="form-control" />
+                            <ValidationMessage For="() => Teacher.phone" class="text-danger" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="work_since" class="form-label">work_since:</label>
+                            <InputDate id="work_since" @bind-Value="Teacher.work_since" class="form-control" />
+                            <ValidationMessage For="() => Teacher.work_since" class="text-danger" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="rate" class="form-label">rate:</label>
+                            <InputNumber id="rate" @bind-Value="Teacher.rate" class="form-control" />
+                            <ValidationMessage For="() => Teacher.rate" class="text-danger" />
+                        </div>
+
+
+                    </div>
+                    <Photo Human="Teacher" AllowChange="true"/>
                 </div>
 @*                 <div class="mb-3">
                     <label for="photo" class="form-label">photo:</label>
@@ -73,7 +85,6 @@ else
                 <button type="submit" class="btn btn-primary">Save</button>
             </EditForm>
         </div>
-    </div>
 }
 
 <div>
@@ -121,7 +132,7 @@ else
             }
         }
 
-        NavigationManager.NavigateTo("/teachers");
+        NavigationManager.NavigateTo($"/teachers/details?teacher_id={teacher_id}");
     }
 
     private bool TeacherExists(int teacher_id)
