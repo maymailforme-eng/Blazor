@@ -55,7 +55,7 @@ else
 
                     <option value="0">Выберите дисциплину</option>
 
-                    @foreach (var discipline in availableDisciplines)
+                    @foreach (Academy.Models.Discipline? discipline in availableDisciplines)
                     {
                         <option value="@discipline.discipline_id">
                             @discipline.discipline_name
@@ -94,7 +94,7 @@ else
     {
         int currentTeacherId = Input?.teacher_id ?? teacher_id;
 
-        using var context = DbFactory.CreateDbContext();
+        using Academy.Data.AcademyContext? context = DbFactory.CreateDbContext();
 
         teacher = await context.Teachers
             .AsNoTracking()
@@ -111,6 +111,7 @@ else
             teacher_id = teacher.teacher_id
         };
 
+        //поиск дисциплин которые еще не назначены преподавателю
         availableDisciplines = await context.Disciplines
             .AsNoTracking()
             .Where(d => !context.Set<TeachersDisciplinesRelation>()
@@ -121,13 +122,16 @@ else
             .ToListAsync();
     }
 
+    //добавление дисциплины
     private async Task AddDisciplineAsynk()
     {
-        using var context = DbFactory.CreateDbContext();
+        using Academy.Data.AcademyContext? context = DbFactory.CreateDbContext();
 
+        //Существует ли такой учитель
         bool teacherExists = await context.Teachers
             .AnyAsync(t => t.teacher_id == Input!.teacher_id);
 
+        //Существует ли такая дисциплина
         bool disciplineExists = await context.Disciplines
             .AnyAsync(d => d.discipline_id == Input.discipline_id);
 
@@ -137,6 +141,7 @@ else
             return;
         }
 
+        //Существует ли такая связь
         bool relationExists = await context
             .Set<TeachersDisciplinesRelation>()
             .AnyAsync(relation =>
@@ -149,15 +154,18 @@ else
             return;
         }
 
-        var relation = new TeachersDisciplinesRelation
+        //Создание новой связи 
+        Academy.Models.TeachersDisciplinesRelation? relation = new TeachersDisciplinesRelation
         {
             teacher = Input.teacher_id,
             discipline = Input.discipline_id
         };
 
+        //Добовление новой связи в БД
         context.Set<TeachersDisciplinesRelation>().Add(relation);
         await context.SaveChangesAsync();
 
+        //возврат на страницу Details
         NavigationManager.NavigateTo(
             $"/teachers/details?teacher_id={Input.teacher_id}");
     }
