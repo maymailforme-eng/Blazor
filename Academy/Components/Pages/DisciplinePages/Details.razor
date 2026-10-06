@@ -1,0 +1,97 @@
+﻿@page "/disciplines/details"
+@using Microsoft.EntityFrameworkCore
+@using Academy.Models
+@inject IDbContextFactory<Academy.Data.AcademyContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+
+
+<div>
+    <hr />
+    @if (discipline is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+
+        <div class="controls">
+            <h1>@discipline.discipline_name</h1>
+            <hr />
+            <a href="@($"/disciplines/edit?discipline_id={discipline.discipline_id}")" class="btn btn-primary">Редактировать</a>
+            <a href="@($"/disciplines/delete?discipline_id={discipline.discipline_id}")" class="btn btn-danger">Удалить</a> 
+        </div>
+
+        <div class="mt-3">
+            <dl class="row">
+                <dt class="col-sm-3">discipline_name</dt>
+                <dd class="col-sm-9">@discipline.discipline_name</dd>
+                <dt class="col-sm-3">number_of_lessons</dt>
+                <dd class="col-sm-9">@discipline.number_of_lessons</dd>
+            </dl>
+            <hr />
+        </div>
+
+
+
+
+
+        <div class="controls">
+            <h3>Преподаватели: @discipline.TDR.Count</h3>
+
+            @if (discipline.TDR.Count == 0)
+            {
+            <p>Нет преподавателей, которые могут вести эту дисциплину.</p>
+            }
+            else
+            {
+            <ul>
+                @foreach (Academy.Models.TeachersDisciplinesRelation? relation in discipline.TDR
+                .OrderBy(r => r.Teacher.last_name)
+                .ThenBy(r => r.Teacher.first_name))
+                {
+                <li>
+                    <a href="@($"/teachers/details?teacher_id={relation.Teacher.teacher_id}")">
+                        @relation.Teacher.FullName
+                    </a>
+                </li>
+                }
+            </ul>
+            }
+        </div>
+
+
+
+        <div>
+            <a href="@($"/disciplines")">Back to List</a>
+        </div>
+
+    }
+</div>
+
+
+
+
+
+@code {
+    private Discipline? discipline;
+
+    [SupplyParameterFromQuery]
+    private int discipline_id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using Academy.Data.AcademyContext context = DbFactory.CreateDbContext();
+        discipline = await context.Disciplines
+                        .AsNoTracking()
+                        .Include(d => d.TDR)
+                        .ThenInclude(tdr => tdr.Teacher)
+                        .FirstOrDefaultAsync(m => m.discipline_id == discipline_id);
+
+        if (discipline is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

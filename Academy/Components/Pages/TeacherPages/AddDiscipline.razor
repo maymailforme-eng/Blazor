@@ -1,0 +1,173 @@
+﻿@page "/teachers/add-discipline"
+
+@using Academy.Models
+@using Microsoft.EntityFrameworkCore
+@using System.ComponentModel.DataAnnotations
+
+@inject IDbContextFactory<Academy.Data.AcademyContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Добавление дисциплины</PageTitle>
+
+@if (teacher is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h1>Добавление дисциплины</h1>
+    <h3>@teacher.FullName</h3>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">
+            @errorMessage
+        </div>
+    }
+
+    @if (availableDisciplines.Count == 0)
+    {
+        <p>Преподавателю уже назначены все дисциплины.</p>
+    }
+    else
+    {
+        <EditForm method="post"
+                  Model="Input"
+                  OnValidSubmit="AddDisciplineAsynk"
+                  FormName="add-discipline"
+                  Enhance>
+
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+
+            <input type="hidden"
+                   name="Input.teacher_id"
+                   value="@Input!.teacher_id" />
+
+            <div class="mb-3">
+                <label for="discipline" class="form-label">
+                    Дисциплина:
+                </label>
+
+                <InputSelect id="discipline"
+                             @bind-Value="Input!.discipline_id"
+                             class="form-select">
+
+                    <option value="0">Выберите дисциплину</option>
+
+                    @foreach (var discipline in availableDisciplines)
+                    {
+                        <option value="@discipline.discipline_id">
+                            @discipline.discipline_name
+                        </option>
+                    }
+                </InputSelect>
+
+                <ValidationMessage For="() => Input!.discipline_id"
+                                   class="text-danger" />
+            </div>
+
+            <button type="submit" class="btn btn-success">
+                Добавить
+            </button>
+        </EditForm>
+    }
+
+    <a href="@($"/teachers/details?teacher_id={teacher.teacher_id}")">
+        Вернуться к преподавателю
+    </a>
+}
+
+
+@code {
+    private Teacher? teacher;
+    private List<Discipline> availableDisciplines = [];
+    private string? errorMessage;
+
+    [SupplyParameterFromQuery]
+    private int teacher_id { get; set; }
+
+    [SupplyParameterFromForm]
+    private AddDisciplineModel? Input { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        int currentTeacherId = Input?.teacher_id ?? teacher_id;
+
+        using var context = DbFactory.CreateDbContext();
+
+        teacher = await context.Teachers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.teacher_id == currentTeacherId);
+
+        if (teacher is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+            return;
+        }
+
+        Input ??= new AddDisciplineModel
+        {
+            teacher_id = teacher.teacher_id
+        };
+
+        availableDisciplines = await context.Disciplines
+            .AsNoTracking()
+            .Where(d => !context.Set<TeachersDisciplinesRelation>()
+                .Any(relation =>
+                    relation.teacher == teacher.teacher_id &&
+                    relation.discipline == d.discipline_id))
+            .OrderBy(d => d.discipline_name)
+            .ToListAsync();
+    }
+
+    private async Task AddDisciplineAsynk()
+    {
+        using var context = DbFactory.CreateDbContext();
+
+        bool teacherExists = await context.Teachers
+            .AnyAsync(t => t.teacher_id == Input!.teacher_id);
+
+        bool disciplineExists = await context.Disciplines
+            .AnyAsync(d => d.discipline_id == Input.discipline_id);
+
+        if (!teacherExists || !disciplineExists)
+        {
+            errorMessage = "Преподаватель или дисциплина не найдены.";
+            return;
+        }
+
+        bool relationExists = await context
+            .Set<TeachersDisciplinesRelation>()
+            .AnyAsync(relation =>
+                relation.teacher == Input.teacher_id &&
+                relation.discipline == Input.discipline_id);
+
+        if (relationExists)
+        {
+            errorMessage = "Эта дисциплина уже добавлена преподавателю.";
+            return;
+        }
+
+        var relation = new TeachersDisciplinesRelation
+        {
+            teacher = Input.teacher_id,
+            discipline = Input.discipline_id
+        };
+
+        context.Set<TeachersDisciplinesRelation>().Add(relation);
+        await context.SaveChangesAsync();
+
+        NavigationManager.NavigateTo(
+            $"/teachers/details?teacher_id={Input.teacher_id}");
+    }
+
+    private sealed class AddDisciplineModel
+    {
+        public int teacher_id { get; set; }
+
+        [Range(1, int.MaxValue, ErrorMessage = "Выберите дисциплину")]
+        public int discipline_id { get; set; }
+    }
+}
+

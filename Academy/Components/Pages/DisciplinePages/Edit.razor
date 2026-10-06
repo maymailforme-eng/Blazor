@@ -1,0 +1,148 @@
+﻿@page "/disciplines/edit"
+
+@using Microsoft.EntityFrameworkCore
+@using Academy.Models
+@using System.ComponentModel.DataAnnotations
+
+@inject IDbContextFactory<Academy.Data.AcademyContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Изменить</h1>
+
+<h2>Дисциплины</h2>
+<hr />
+@if (Input is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post"
+                      Model="Input"
+                      OnValidSubmit="UpdateDiscipline"
+                      FormName="edit"
+                      Enhance>
+
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert" />
+
+                <input type="hidden"
+                       name="Input.discipline_id"
+                       value="@Input.discipline_id" />
+
+                <div class="mb-3">
+                    <span class="text-danger">*</span>
+
+                    <label for="discipline_name" class="form-label">
+                        Название дисциплины:
+                    </label>
+
+                    <InputText id="discipline_name"
+                               @bind-Value="Input.discipline_name"
+                               class="form-control"
+                               aria-required="true" />
+
+                    <ValidationMessage For="() => Input.discipline_name"
+                                       class="text-danger" />
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-danger">*</span>
+
+                    <label for="number_of_lessons" class="form-label">
+                        Количество занятий:
+                    </label>
+
+                    <InputNumber id="number_of_lessons"
+                                 @bind-Value="Input.number_of_lessons"
+                                 class="form-control"
+                                 aria-required="true" />
+
+                    <ValidationMessage For="() => Input.number_of_lessons"
+                                       class="text-danger" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Save
+                </button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/disciplines">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int discipline_id { get; set; }
+
+    [SupplyParameterFromForm]
+    private DisciplineEditModel? Input { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // При POST Input уже заполнен данными отправленной формы.
+        if (Input is not null)
+        {
+            return;
+        }
+
+        using var context = DbFactory.CreateDbContext();
+
+        var discipline = await context.Disciplines
+            .AsNoTracking()
+            .FirstOrDefaultAsync(d => d.discipline_id == discipline_id);
+
+        if (discipline is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+            return;
+        }
+
+        Input = new DisciplineEditModel
+        {
+            discipline_id = discipline.discipline_id,
+            discipline_name = discipline.discipline_name,
+            number_of_lessons = discipline.number_of_lessons
+        };
+    }
+
+    private async Task UpdateDiscipline()
+    {
+        using var context = DbFactory.CreateDbContext();
+
+        var discipline = await context.Disciplines
+            .FindAsync(Input!.discipline_id);
+
+        if (discipline is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+            return;
+        }
+
+        discipline.discipline_name = Input.discipline_name;
+        discipline.number_of_lessons = Input.number_of_lessons;
+
+        await context.SaveChangesAsync();
+
+        NavigationManager.NavigateTo("/disciplines");
+    }
+
+    private sealed class DisciplineEditModel
+    {
+        public int discipline_id { get; set; }
+
+        [Required(ErrorMessage = "Введите название дисциплины")]
+        [StringLength(150)]
+        public string discipline_name { get; set; } = string.Empty;
+
+        [Range(1, 255, ErrorMessage = "Количество занятий должно быть от 1 до 255")]
+        public int number_of_lessons { get; set; }
+    }
+}

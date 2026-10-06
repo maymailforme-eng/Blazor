@@ -1,0 +1,105 @@
+﻿@page "/disciplines/create"
+
+@using Microsoft.EntityFrameworkCore
+@using Academy.Models
+@using System.ComponentModel.DataAnnotations
+
+@inject IDbContextFactory<Academy.Data.AcademyContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Discipline</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+
+        <EditForm method="post"
+                  Model="Input"
+                  OnValidSubmit="AddDiscipline"
+                  FormName="create"
+                  Enhance>
+
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+
+                <label for="discipline_name" class="form-label">
+                    Название дисциплины:
+                </label>
+
+                <InputText id="discipline_name"
+                           @bind-Value="Input!.discipline_name"
+                           class="form-control"
+                           aria-required="true" />
+
+                <ValidationMessage For="() => Input!.discipline_name"
+                                   class="text-danger" />
+            </div>
+
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+
+                <label for="number_of_lessons" class="form-label">
+                    Количество занятий:
+                </label>
+
+                <InputNumber id="number_of_lessons"
+                             @bind-Value="Input!.number_of_lessons"
+                             class="form-control"
+                             aria-required="true" />
+
+                <ValidationMessage For="() => Input!.number_of_lessons"
+                                   class="text-danger" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Create
+            </button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/disciplines">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private DisciplineCreateModel? Input { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Input ??= new DisciplineCreateModel();
+    }
+
+    private async Task AddDiscipline()
+    {
+        using var context = DbFactory.CreateDbContext();
+
+        var discipline = new Discipline
+        {
+            discipline_name = Input!.discipline_name,
+            number_of_lessons = Input.number_of_lessons
+        };
+
+        context.Disciplines.Add(discipline);
+        await context.SaveChangesAsync();
+
+        NavigationManager.NavigateTo("/disciplines");
+    }
+
+    private sealed class DisciplineCreateModel
+    {
+        [Required(ErrorMessage = "Введите название дисциплины")]
+        [StringLength(150)]
+        public string discipline_name { get; set; } = string.Empty;
+
+        [Range(1, 255, ErrorMessage = "Количество занятий должно быть от 1 до 255")]
+        public int number_of_lessons { get; set; }
+    }
+}

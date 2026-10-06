@@ -48,17 +48,39 @@
             <Photo Human="teacher" />
         </div>
 
-        <div>
-            <a href="@($"/teacher")">Back to List</a>
-        </div>
 
-        <h3>Дисциплины:</h3>
+        <hr />
+        //список дисциплин 
+        <h3>Дисциплины: @teacher.TDR.Count</h3>
+
+
+
         <ul>
-            @foreach (TeachersDisciplinesRelation tdr in teacher.TDR)
+            @if (teacher.TDR.Count == 0)
             {
-                <li>@tdr.Discipline.discipline_name</li>    
+                <p>У преподавателя нет дисциплин.</p>
+            }
+            else
+            {
+                <ul>
+                    @foreach (TeachersDisciplinesRelation tdr in teacher.TDR)
+                    {
+                        <li>@tdr.Discipline.discipline_name</li>
+                    }
+                </ul>
             }
         </ul>
+
+
+
+        //переход на страницу для создания новой связи дисциплины + учитель
+        <a href="@($"/teachers/add-discipline?teacher_id={teacher.teacher_id}")" class="btn btn-success"> Добавить дисциплину </a>
+
+
+        //Переход назад на страницу учителей
+        <div>
+            <a href="@($"/teachers")">Back to List</a>
+        </div>
     }
 </div>
 
@@ -70,7 +92,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        using var context = DbFactory.CreateDbContext();
+        using Academy.Data.AcademyContext context = DbFactory.CreateDbContext();
         teacher = await context.Teachers
                                 .Include(t=>t.TDR)
                                 .ThenInclude(tdr=>tdr.Discipline)

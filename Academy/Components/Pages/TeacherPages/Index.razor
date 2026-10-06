@@ -19,16 +19,16 @@
    @*  <PropertyColumn Property="teacher => teacher.last_name" />
     <PropertyColumn Property="teacher => teacher.first_name" />
     <PropertyColumn Property="teacher => teacher.middle_name" /> *@
-    <TemplateColumn Context="teacher">
+    <TemplateColumn Context="teacher" Title="ФИО">
         <a href="@($"/teachers/details?teacher_id={teacher.teacher_id}")">@teacher.FullName</a>
     </TemplateColumn>
-    <PropertyColumn Property="teacher => teacher.Age" />
+    <PropertyColumn Property="teacher => teacher.Age" Title="Возраст"/>
     @* <PropertyColumn Property="teacher => teacher.birth_date" /> *@
-    <PropertyColumn Property="teacher => teacher.email" />
-    <PropertyColumn Property="teacher => teacher.phone" />
-    <PropertyColumn Property="teacher => teacher.photo" />
-    <PropertyColumn Property="teacher => teacher.work_since" />
-    <PropertyColumn Property="teacher => teacher.rate" />
+    <PropertyColumn Property="teacher => teacher.email" Title="Почтовый адрес"/>
+    <PropertyColumn Property="teacher => teacher.phone" Title="Номер телефона"/>
+@*     <PropertyColumn Property="teacher => teacher.photo" Title=""/> *@
+    <PropertyColumn Property="teacher => teacher.work_since" Title="Дата трудоустройства" />
+    <PropertyColumn Property="teacher => teacher.rate" Title="Ставка"/>
 
     @* <TemplateColumn Context="teacher">
         <a href="@($"teachers/edit?teacher_id={teacher.teacher_id}")">Edit</a> |
