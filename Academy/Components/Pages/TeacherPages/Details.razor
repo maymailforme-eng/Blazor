@@ -51,6 +51,14 @@
         <div>
             <a href="@($"/teacher")">Back to List</a>
         </div>
+
+        <h3>Дисциплины:</h3>
+        <ul>
+            @foreach (TeachersDisciplinesRelation tdr in teacher.TDR)
+            {
+                <li>@tdr.Discipline.discipline_name</li>    
+            }
+        </ul>
     }
 </div>
 
@@ -63,7 +71,10 @@
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
-        teacher = await context.Teachers.FirstOrDefaultAsync(m => m.teacher_id == teacher_id);
+        teacher = await context.Teachers
+                                .Include(t=>t.TDR)
+                                .ThenInclude(tdr=>tdr.Discipline)
+                                .FirstOrDefaultAsync(m => m.teacher_id == teacher_id);
 
         if (teacher is null)
         {
