@@ -21,14 +21,24 @@
     <thead>
         <tr>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParam"]">@Html.DisplayNameFor(model=>model.LastName)</a>
+                <a asp-action="Index" 
+                asp-route-sortOrder="@ViewData["NameSortParam"]" 
+                asp-route-searchString="@ViewData["CurrentFilter"]"
+                >
+                @Html.DisplayNameFor(model=>model.LastName)
+                </a>
 @*                 @Html.DisplayNameFor(model => model.LastName) *@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.FirstName)
             </th>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParam"]">@Html.DisplayNameFor(model=>model.EnrollmentDate)</a>
+                <a asp-action="Index" 
+                asp-route-sortOrder="@ViewData["DateSortParam"]"
+                   asp-route-searchString="@ViewData["CurrentFilter"]"
+                >
+                @Html.DisplayNameFor(model=>model.EnrollmentDate)
+                </a>
                 @* @Html.DisplayNameFor(model => model.EnrollmentDate) *@
             </th>
             <th></th>
