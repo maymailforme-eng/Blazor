@@ -20,16 +20,24 @@ namespace ContosoUniversity.Controllers
         }
 
         // GET: Students
-        public async Task<IActionResult> Index(string sortOrder, string searchString)
+        public async Task<IActionResult> Index( string sortOrder, 
+                                                string searchString, 
+                                                int? pageIndex)
         {
             ViewData["NameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewData["DateSortParam"] = sortOrder == "Date" ? "date_desc" : "date_asc";
             ViewData["CurrentFilter"] = searchString;
 
+
+            //if (searchString != null) = pageIndex = 1;
+
+
             IQueryable<Student> students = from student in _context.Students select student;
 
             if (!(String.IsNullOrEmpty(searchString) && String.IsNullOrWhiteSpace(searchString)))
             {
+
+                pageIndex = 1;
                 students = students.Where(s => s.LastName.Contains(searchString)  || s.FirstName.Contains(searchString));
             }    
 
@@ -41,8 +49,10 @@ namespace ContosoUniversity.Controllers
                 default:            students = students.OrderBy(s => s.LastName);                   break;   
             }
 
+            int pageSize = 3;
+            return View(await PaginatedList<Student>.CreateAsync(students.AsNoTracking(), pageIndex ?? 1, pageSize));
             //return View(await _context.Students.ToListAsync());
-            return View(await students.ToListAsync());
+            //return View(await students.ToListAsync());
         }
 
         // GET: Students/Details/5
