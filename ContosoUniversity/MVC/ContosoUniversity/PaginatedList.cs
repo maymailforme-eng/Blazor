@@ -10,7 +10,7 @@ namespace ContosoUniversity
         public PaginatedList(List<T> items, int count, int pageIndex, int pageSize)
         {
             this.PageIndex = pageIndex;
-            this.TotalPages = count/pageSize;
+            this.TotalPages = (int)Math.Ceiling((double)count/pageSize);
             this.AddRange(items);
         }
 
