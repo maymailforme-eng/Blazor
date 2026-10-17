@@ -17,6 +17,15 @@
         </lable>
     </form>
 
+    <div>
+        <label for="items-per-page">Items per page</label>
+        <select for="items-per-page" asp-action="Index" asp-route-itemsPerPage="">
+            <option value="3">3</option>
+            <option value="5">5</option>
+            <option value="8">8</option>
+        </select>
+    </div>
+
     <p>
         <a asp-action="Create" class="btn btn-primary">Create New</a>
     </p>

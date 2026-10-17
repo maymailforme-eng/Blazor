@@ -22,7 +22,8 @@ namespace ContosoUniversity.Controllers
         // GET: Students
         public async Task<IActionResult> Index( string sortOrder, 
                                                 string searchString, 
-                                                int? pageIndex)
+                                                int? pageIndex,
+                                                int itemsPerPage=3)
         {
             ViewData["NameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewData["DateSortParam"] = sortOrder == "Date" ? "date_desc" : "date_asc";
@@ -49,7 +50,7 @@ namespace ContosoUniversity.Controllers
                 default:            students = students.OrderBy(s => s.LastName);                   break;   
             }
 
-            int pageSize = 3;
+            int pageSize = itemsPerPage;
             return View(await PaginatedList<Student>.CreateAsync(students.AsNoTracking(), pageIndex ?? 1, pageSize));
             //return View(await _context.Students.ToListAsync());
             //return View(await students.ToListAsync());
