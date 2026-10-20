@@ -15,7 +15,7 @@ namespace ContosoUniversity
         }
 
 
-        public bool HasPreviosPage => PageIndex > 1;
+        public bool HasPreviousPage => PageIndex > 1;
         public bool HasNextPage => PageIndex < TotalPages;
 
 
@@ -24,12 +24,39 @@ namespace ContosoUniversity
                                                                 int pageSize
                                                                 )
         {
-            int count = await source.CountAsync();
-            List<T> items = await source.Skip((pageIndex - 1) * pageSize)
-                                        .Take(pageSize)
-                                        .ToListAsync();
+            //int count = await source.CountAsync();
+            //List<T> items = await source.Skip((pageIndex - 1) * pageSize)
+            //                            .Take(pageSize)
+            //                            .ToListAsync();
 
-            return new PaginatedList<T>(items, count, pageIndex, pageSize);
+            //return new PaginatedList<T>(items, count, pageIndex, pageSize);
+
+            if (pageSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(pageSize),
+                    "Размер страницы должен быть больше нуля.");
+            }
+
+            int count = await source.CountAsync();
+
+            int totalPages = (int)Math.Ceiling(count / (double)pageSize);
+
+            // Нижняя граница — первая страница.
+            pageIndex = Math.Max(pageIndex, 1);
+
+            // Если номер слишком большой, показываем последнюю страницу.
+            if (totalPages > 0)
+            {
+                pageIndex = Math.Min(pageIndex, totalPages);
+            }
+
+            List<T> items = await source
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PaginatedList<T>(items, count, pageIndex,pageSize);
         }
 
     }

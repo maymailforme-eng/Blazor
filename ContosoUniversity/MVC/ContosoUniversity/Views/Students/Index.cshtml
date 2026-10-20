@@ -6,7 +6,7 @@
     ViewData["Title"] = "Students";
 }
 
-<div class="controls">
+@* <div class="controls">
     <h1>Students</h1>
     <form asp-action="Index" method="get">
         <lable>
@@ -29,32 +29,106 @@
     <p>
         <a asp-action="Create" class="btn btn-primary">Create New</a>
     </p>
+</div> *@
+@{
+    int currentItemsPerPage =
+        (int)(ViewData["CurrentItemsPerPage"] ?? 3);
+}
+
+<div class="controls">
+    <h1>Students</h1>
+
+    <form asp-action="Index" method="get">
+        @* Сохраняем сортировку при поиске и изменении размера страницы. 
+           Сохраняем скрытно - т.е. без явного выбора 
+        *@
+        <input type="hidden"
+               name="sortOrder"
+               value="@ViewData["CurrentSort"]" />
+
+        <label>
+            Поиск по имени:
+
+            <input type="search"
+                   name="searchString"
+                   value="@ViewData["CurrentFilter"]" />
+        </label>
+
+        <label for="items-per-page">
+            Items per page
+        </label>
+
+        @* Добавили items-per-page сохраняет значение при переходе  *@
+        @* При изменение размера переотправляем форму  onchange="this.form.submit()*@
+        <select id="items-per-page" 
+                name="itemsPerPage"
+                onchange="this.form.submit()">
+
+            <option value="3" selected="@(currentItemsPerPage == 3)"> 3
+            </option>
+
+            <option value="5" selected="@(currentItemsPerPage == 5)"> 5
+            </option>
+
+            <option value="8" selected="@(currentItemsPerPage == 8)"> 8
+            </option>
+        </select>
+
+        <input type="submit" value="Поиск" class="btn btn-primary" />
+
+        <a asp-action="Index" class="btn btn-dark">Сброс</a>
+    </form>
+
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Create New</a>
+    </p>
 </div>
+
+
+
+
 <div class="table-container">
     <table class="table">
         <thead>
             <tr>
                 <th>
-                    <a asp-action="Index"
+@*                  <a asp-action="Index"
                        asp-route-sortOrder="@ViewData["NameSortParam"]"
                        asp-route-searchString="@ViewData["CurrentFilter"]">
                         LastName
-                        @* @Html.DisplayNameFor(model=>model.LastName) *@
-                    </a>
+                        @* @Html.DisplayNameFor(model=>model.LastName)
+                    </a> *@
                     @*                 @Html.DisplayNameFor(model => model.LastName) *@
+
+                    <a asp-action="Index"
+                       asp-route-sortOrder      = "@ViewData["NameSortParam"]"
+                       asp-route-currentFilter  = "@ViewData["CurrentFilter"]"
+                       asp-route-itemsPerPage   = "@ViewData["CurrentItemsPerPage"]">
+                        LastName
+                    </a>
+
                 </th>
                 <th>
                     FirstName
                     @* @Html.DisplayNameFor(model => model.FirstName) *@
                 </th>
                 <th>
-                    <a asp-action="Index"
+                @*     <a asp-action="Index"
                        asp-route-sortOrder="@ViewData["DateSortParam"]"
                        asp-route-searchString="@ViewData["CurrentFilter"]">
                         EnrollmentDate
-                        @* @Html.DisplayNameFor(model=>model.EnrollmentDate) *@
-                    </a>
+                        @* @Html.DisplayNameFor(model=>model.EnrollmentDate)
+                    </a> *@
                     @* @Html.DisplayNameFor(model => model.EnrollmentDate) *@
+
+                    <a asp-action="Index"
+                       asp-route-sortOrder      ="@ViewData["DateSortParam"]"
+                       asp-route-currentFilter  ="@ViewData["CurrentFilter"]"
+                       asp-route-itemsPerPage   ="@ViewData["CurrentItemsPerPage"]">
+                        EnrollmentDate
+                    </a>
+
+
                 </th>
                 <th></th>
             </tr>
@@ -82,12 +156,14 @@
     </table>
 </div>
 
+
+@* Блок пагинации *@
+
 @{
-    string prevDisabled = Model.HasPreviosPage ? "" : "disabled";
+    string prevDisabled = Model.HasPreviousPage ? "" : "disabled";
     string nextDisabled = Model.HasNextPage ? "" : "disabled";
-
 }
-
+@* 
 <div class="pagination-controls">
     <a asp-action="Index"
        asp-route-pageIndex="@(Model.PageIndex - 1)"
@@ -118,5 +194,45 @@
        asp-route-searchString="@ViewData["CurrentFilter"]"
        class="btn btn-default @nextDisabled">
         Next
+    </a> *@
+
+<div class="pagination-controls">
+    <a asp-action="Index"
+       asp-route-pageIndex="@(Model.PageIndex - 1)"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       asp-route-itemsPerPage="@ViewData["CurrentItemsPerPage"]"
+       class="btn btn-default @prevDisabled">
+        Prev
     </a>
+
+    <div class="pagination-items">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <a asp-action="Index"
+               asp-route-pageIndex="@i"
+               asp-route-sortOrder="@ViewData["CurrentSort"]"
+               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+               asp-route-itemsPerPage="@ViewData["CurrentItemsPerPage"]"
+               class="@(i == Model.PageIndex
+                                  ? "selected-page"
+                                  : "pagination-item")">
+            @i
+        </a>
+                }
+    </div>
+
+    <a asp-action="Index"
+       asp-route-pageIndex="@(Model.PageIndex + 1)"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       asp-route-itemsPerPage="@ViewData["CurrentItemsPerPage"]"
+       class="btn btn-default @nextDisabled">
+        Next
+    </a>
+
+
+
+
+
 </div>

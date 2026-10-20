@@ -20,29 +20,94 @@ namespace ContosoUniversity.Controllers
         }
 
         // GET: Students
-        public async Task<IActionResult> Index( string sortOrder, 
-                                                string searchString, 
+
+        //причина ошибки в коде ссылка пагинации передаёт searchString,
+        //а контроллер при любом непустом searchString выполняет pageIndex = 1.
+        //Поэтому поиск постоянно возвращает пользователя на первую страницу.
+
+
+        public async Task<IActionResult> Index(
+                                                string? sortOrder,
+                                                string? currentFilter,
+                                                string? searchString,
                                                 int? pageIndex,
-                                                int itemsPerPage=3)
+                                                int itemsPerPage = 3)
         {
+
+            // Запоминаем текущую сортировку, чтобы передавать её
+            // в ссылки пагинации и форму поиска.
+            ViewData["CurrentSort"] = sortOrder;
+
+
+
             ViewData["NameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            ViewData["DateSortParam"] = sortOrder == "Date" ? "date_desc" : "date_asc";
+
+
+            //ViewData["DateSortParam"] = sortOrder == "Date" ? "date_desc" : "date_asc"; // значение Date страница вообще не передавала, 
+                                                                                          //и оно не участвует в switch (sortOrder)
+                                                                                          //по этому выпадал всегда false 
+
+            ViewData["DateSortParam"] = sortOrder == "date_asc" ? "date_desc" : "date_asc";
+
+
+            // Разрешаем только предусмотренные размеры страницы.
+            // Это также защищает от ручной подстановки некорректного через URL 
+            // сохраняем выбранное количество записей на странице
+            if (itemsPerPage is not (3 or 5 or 8))
+            {
+                itemsPerPage = 3;
+            }
+
+            ViewData["CurrentItemsPerPage"] = itemsPerPage;
+
+
+            /*
+            * searchString приходит только при отправке формы поиска.
+            * currentFilter приходит при переключении страниц.
+            *
+            * Если пользователь ввёл новый поисковый запрос,
+            * необходимо вернуться на первую страницу.
+            */
+            if (searchString != null)
+            {
+                pageIndex = 1;
+            }
+            else
+            {
+                // При пагинации восстанавливаем уже действующий фильтр.
+                searchString = currentFilter;
+            }
+
             ViewData["CurrentFilter"] = searchString;
 
 
-            //if (searchString != null) = pageIndex = 1;
 
 
-            IQueryable<Student> students = from student in _context.Students select student;
 
-            if (!(String.IsNullOrEmpty(searchString) && String.IsNullOrWhiteSpace(searchString)))
+            IQueryable<Student> students = _context.Students;
+
+
+
+            //IQueryable<Student> students = from student in _context.Students select student;
+
+            //if (!(String.IsNullOrEmpty(searchString) && String.IsNullOrWhiteSpace(searchString)))
+            //{
+
+            //    pageIndex = 1;
+            //    students = students.Where(s => s.LastName.Contains(searchString)  || s.FirstName.Contains(searchString));
+            //}    
+
+            if (!String.IsNullOrWhiteSpace(searchString)) //метод IsNullOrWhiteSpace также вернет true при ""
             {
+                string normalizedSearch = searchString.Trim(); //обрезка пробелов
 
-                pageIndex = 1;
-                students = students.Where(s => s.LastName.Contains(searchString)  || s.FirstName.Contains(searchString));
-            }    
+                students = students.Where(student => student.LastName.Contains(normalizedSearch) ||
+                                                     student.FirstName.Contains(normalizedSearch));
+            }
 
-            switch(sortOrder)
+
+
+            switch (sortOrder)
             {
                 case "name_desc":   students = students.OrderByDescending(s => s.LastName);         break;
                 case "date_desc":   students = students.OrderByDescending(s => s.EnrollmentDate);   break;
@@ -50,8 +115,11 @@ namespace ContosoUniversity.Controllers
                 default:            students = students.OrderBy(s => s.LastName);                   break;   
             }
 
-            int pageSize = itemsPerPage;
-            return View(await PaginatedList<Student>.CreateAsync(students.AsNoTracking(), pageIndex ?? 1, pageSize));
+            //int pageSize = itemsPerPage; //возвращаем на прямую 
+
+            return View(await PaginatedList<Student>.CreateAsync(students.AsNoTracking(), 
+                                                                 pageIndex ?? 1, 
+                                                                 itemsPerPage));
             //return View(await _context.Students.ToListAsync());
             //return View(await students.ToListAsync());
         }
