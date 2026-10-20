@@ -1,122 +1,122 @@
-﻿@* @model IEnumerable<ContosoUniversity.Models.Student>
- *@
- @model PaginatedList<Student> 
+﻿@* @model IEnumerable<ContosoUniversity.Models.Student> *@
+@model PaginatedList<Student>
 
 @{
-    ViewData["Title"] = "Students";
+	ViewData["Title"] = "Students";
 }
 
 <div class="controls">
-    <h1>Students</h1>
-    <form asp-action="Index" method="get">
-        <lable>
-            Поиск по имени:
-            <input type="search" name="SearchString" value="@ViewData["CurrentFilter"]" />
-            <input type="submit" value="Поиск" class="btn btn-primary" />
-            <a asp-action="Index" class="btn btn-dark">Сброс</a>
-        </lable>
-    </form>
+	<h1>Students</h1>
+	<form asp-action="Index" method="get">
+		<label>
+			Поиск по имени:
+			<input type="search" name="SearchString" value="@ViewData["CurrentFilter"]" />
+			<input type="submit" value="Поиск" class="btn btn-primary" />
+			<a asp-action="Index" class="btn btn-dark">Сброс</a>
+		</label>
 
-    <div>
-        <label for="items-per-page">Items per page</label>
-        <select for="items-per-page" asp-action="Index" asp-route-itemsPerPage="">
-            <option value="3">3</option>
-            <option value="5">5</option>
-            <option value="8">8</option>
-        </select>
-    </div>
+		<div>
+			<label for="items-per-page">Items per page:</label>
+			<select id="items-per-page" name="itemsPerPage" onchange="this.form.submit()">
+				<option value="3" selected="@(Convert.ToInt32(ViewData["ItemsPerPage"]) == 3)">3</option>
+				<option value="5" selected="@(Convert.ToInt32(ViewData["ItemsPerPage"]) == 5)">5</option>
+				<option value="8" selected="@(Convert.ToInt32(ViewData["ItemsPerPage"]) == 8)">8</option>
+			</select>
+		</div>
+	</form>
 
-    <p>
-        <a asp-action="Create" class="btn btn-primary">Create New</a>
-    </p>
+
+	<div>
+		<a asp-action="Create" class="btn btn-primary">Create New</a>
+	</div>
 </div>
 <div class="table-container">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    <a asp-action="Index"
-                       asp-route-sortOrder="@ViewData["NameSortParam"]"
-                       asp-route-searchString="@ViewData["CurrentFilter"]">
-                        LastName
-                        @* @Html.DisplayNameFor(model=>model.LastName) *@
-                    </a>
-                    @*                 @Html.DisplayNameFor(model => model.LastName) *@
-                </th>
-                <th>
-                    FirstName
-                    @* @Html.DisplayNameFor(model => model.FirstName) *@
-                </th>
-                <th>
-                    <a asp-action="Index"
-                       asp-route-sortOrder="@ViewData["DateSortParam"]"
-                       asp-route-searchString="@ViewData["CurrentFilter"]">
-                        EnrollmentDate
-                        @* @Html.DisplayNameFor(model=>model.EnrollmentDate) *@
-                    </a>
-                    @* @Html.DisplayNameFor(model => model.EnrollmentDate) *@
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model) {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.LastName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FirstName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.EnrollmentDate)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
-                </td>
-            </tr>
-            }
-        </tbody>
-    </table>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>
+					<a asp-action="Index"
+					   asp-route-sortOrder="@ViewData["NameSortParam"]"
+					   asp-route-searchString="@ViewData["CurrentFilter"]"
+					   asp-route-itemsPerPage="@ViewData["ItemsPerPage"]">
+						Last name
+						@* @Html.DisplayNameFor(model => model.LastName) *@
+					</a>
+					@* @Html.DisplayNameFor(model => model.LastName) *@
+				</th>
+				<th>
+					First name
+					@* @Html.DisplayNameFor(model => model.FirstName) *@
+				</th>
+				<th>
+					<a asp-action="Index"
+					   asp-route-sortOrder="@ViewData["DateSortParam"]"
+					   asp-route-searchString="@ViewData["CurrentFilter"]"
+					   asp-route-itemsPerPage="@ViewData["ItemsPerPage"]">
+						Enrollment date
+						@* @Html.DisplayNameFor(model => model.EnrollmentDate) *@
+					</a>
+					@* @Html.DisplayNameFor(model => model.EnrollmentDate) *@
+				</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var item in Model)
+			{
+				<tr>
+					<td>
+						@Html.DisplayFor(modelItem => item.LastName)
+					</td>
+					<td>
+						@Html.DisplayFor(modelItem => item.FirstName)
+					</td>
+					<td>
+						@Html.DisplayFor(modelItem => item.EnrollmentDate)
+					</td>
+					<td>
+						<a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+						<a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+						<a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
 </div>
 
 @{
-    string prevDisabled = Model.HasPreviosPage ? "" : "disabled";
-    string nextDisabled = Model.HasNextPage ? "" : "disabled";
-
+	string prevDisabled = Model.HasPreviousPage ? "" : "disabled";
+	string nextDisabled = Model.HasNextPage ? "" : "disabled";
 }
 
 <div class="pagination-controls">
-    <a asp-action="Index"
-       asp-route-pageIndex="@(Model.PageIndex - 1)"
-       asp-route-searchString="@ViewData["CurrentFilter"]"
-       class="btn btn-default @prevDisabled">
-        Prev
-    </a>
+	<a asp-action="Index"
+	   asp-route-pageIndex="@(Model.PageIndex - 1)"
+	   asp-route-searchString="@ViewData["CurrentFilter"]"
+	   asp-route-itemsPerPage="@ViewData["ItemsPerPage"]"
+	   class="btn btn-default @prevDisabled">
+		Prev
+	</a>
 
-    <div class="pagination-items">
-        @for (int i = 1; i < Model.TotalPages; ++i)
-        {
-            <a asp-action="Index" 
-            asp-route-pageIndex="@i" 
-            asp-route-searchString="@ViewData["CurrentFilter"]"
-            class=@(i == Model.PageIndex ? "selected-page" : "pagination-item")
-            >
-                @i
+	<div class="pagination-items">
+		@for (int i = 1; i <= Model.TotalPages; i++)
+		{
+			<a asp-action="Index"
+			   asp-route-pageIndex="@i"
+			   asp-route-searchString="@ViewData["CurrentFilter"]"
+			   asp-route-itemsPerPage="@ViewData["ItemsPerPage"]"
+			   class=@(i == Model.PageIndex ? "selected-page" : "pagination-item")>
+				@i
+			</a>
+		}
+	</div>
 
-            </a>
-
-        }
-
-    </div>
-
-
-    <a asp-action="Index"
-       asp-route-pageIndex="@(Model.PageIndex + 1)"
-       asp-route-searchString="@ViewData["CurrentFilter"]"
-       class="btn btn-default @nextDisabled">
-        Next
-    </a>
+	<a asp-action="Index"
+	   asp-route-pageIndex="@(Model.PageIndex + 1)"
+	   asp-route-searchString="@ViewData["CurrentFilter"]"
+	   asp-route-itemsPerPage="@ViewData["ItemsPerPage"]"
+	   class="btn btn-default @nextDisabled">
+		Next
+	</a>
 </div>

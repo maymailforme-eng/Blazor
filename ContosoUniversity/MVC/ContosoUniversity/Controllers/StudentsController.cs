@@ -20,40 +20,54 @@ namespace ContosoUniversity.Controllers
         }
 
         // GET: Students
-        public async Task<IActionResult> Index( string sortOrder, 
-                                                string searchString, 
-                                                int? pageIndex,
-                                                int itemsPerPage=3)
+        public async Task<IActionResult> Index
+        (
+            string sortOrder,
+            string searchString,
+            int? pageIndex,
+            int itemsPerPage = 3
+        )
         {
             ViewData["NameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            ViewData["DateSortParam"] = sortOrder == "Date" ? "date_desc" : "date_asc";
+            ViewData["DateSortParam"] = sortOrder == "date_asc" ? "date_desc" : "date_asc";
+            //ASC  - Ascending (По возрастанию)
+            //DESC - Descending (По убыванию)
             ViewData["CurrentFilter"] = searchString;
 
-
-            //if (searchString != null) = pageIndex = 1;
-
+            //if (searchString != null)pageIndex = 1;
 
             IQueryable<Student> students = from student in _context.Students select student;
-
             if (!(String.IsNullOrEmpty(searchString) && String.IsNullOrWhiteSpace(searchString)))
             {
-
                 pageIndex = 1;
-                students = students.Where(s => s.LastName.Contains(searchString)  || s.FirstName.Contains(searchString));
-            }    
-
-            switch(sortOrder)
+                students = students.Where
+                (
+                    student =>
+                    student.LastName.Contains(searchString) ||
+                    student.FirstName.Contains(searchString)
+                );
+            }
+            switch (sortOrder)
             {
-                case "name_desc":   students = students.OrderByDescending(s => s.LastName);         break;
-                case "date_desc":   students = students.OrderByDescending(s => s.EnrollmentDate);   break;
-                case "date_asc":    students = students.OrderBy(s => s.EnrollmentDate);             break;
-                default:            students = students.OrderBy(s => s.LastName);                   break;   
+                case "name_desc": students = students.OrderByDescending(s => s.LastName); break;
+                case "date_desc": students = students.OrderByDescending(s => s.EnrollmentDate); break;
+                case "date_asc": students = students.OrderBy(s => s.EnrollmentDate); break;
+                default: students = students.OrderBy(s => s.LastName); break;
             }
 
+            ViewData["ItemsPerPage"] = itemsPerPage;
             int pageSize = itemsPerPage;
-            return View(await PaginatedList<Student>.CreateAsync(students.AsNoTracking(), pageIndex ?? 1, pageSize));
-            //return View(await _context.Students.ToListAsync());
+            return View
+            (
+                await PaginatedList<Student>.CreateAsync
+                (
+                    students.AsNoTracking(),
+                    pageIndex ?? 1,
+                    pageSize
+                )
+            );
             //return View(await students.ToListAsync());
+            //return View(await _context.Students.ToListAsync());
         }
 
         // GET: Students/Details/5
