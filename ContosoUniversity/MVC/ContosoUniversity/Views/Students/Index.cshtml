@@ -39,7 +39,7 @@
 				<th>
 					<a asp-action="Index"
 					   asp-route-sortOrder="@ViewData["NameSortParam"]"
-					   asp-route-searchString="@ViewData["CurrentFilter"]"
+					   asp-route-currentFilter="@ViewData["CurrentFilter"]"
 					   asp-route-itemsPerPage="@ViewData["ItemsPerPage"]">
 						@* Last name *@
 						@Html.DisplayNameFor(m=> m.First().LastName)
@@ -54,7 +54,7 @@
 				<th>
 					<a asp-action="Index"
 					   asp-route-sortOrder="@ViewData["DateSortParam"]"
-					   asp-route-searchString="@ViewData["CurrentFilter"]"
+					   asp-route-currentFilter="@ViewData["CurrentFilter"]"
 					   asp-route-itemsPerPage="@ViewData["ItemsPerPage"]">
 					@* 	Enrollment date *@
 						@Html.DisplayNameFor(model => model.First().EnrollmentDate)
@@ -98,7 +98,7 @@
 	<a asp-action="Index"
 	   asp-route-pageIndex="@(Model.PageIndex - 1)"
 	   asp-route-sortOrder="@ViewData["CurrentSort"]"
-	   asp-route-searchString="@ViewData["CurrentFilter"]"
+	   asp-route-currentFilter="@ViewData["CurrentFilter"]"
 	   asp-route-itemsPerPage="@ViewData["ItemsPerPage"]"
 	   class="btn btn-default @prevDisabled">
 		Prev
@@ -110,7 +110,7 @@
 			<a asp-action="Index"
 			   asp-route-pageIndex="@i"
 			   asp-route-sortOrder="@ViewData["CurrentSort"]"
-			   asp-route-searchString="@ViewData["CurrentFilter"]"
+			   asp-route-currentFilter="@ViewData["CurrentFilter"]"
 			   asp-route-itemsPerPage="@ViewData["ItemsPerPage"]"
 			   class=@(i == Model.PageIndex ? "selected-page" : "pagination-item")>
 				@i
@@ -121,7 +121,7 @@
 	<a asp-action="Index"
 	   asp-route-pageIndex="@(Model.PageIndex + 1)"
 	   asp-route-sortOrder="@ViewData["CurrentSort"]"
-	   asp-route-searchString="@ViewData["CurrentFilter"]"
+	   asp-route-currentFilter="@ViewData["CurrentFilter"]"
 	   asp-route-itemsPerPage="@ViewData["ItemsPerPage"]"
 	   class="btn btn-default @nextDisabled">
 		Next
