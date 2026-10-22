@@ -11,6 +11,8 @@ namespace ContosoUniversity.Models
         public int EnrollmentID {  get; set; }
         public int CourseID { get; set; }
         public int StudentID { get; set; }
+
+        [DisplayFormat(NullDisplayText ="Пересдача")]
         public Grade? Grade { get; set; }
 
         //Navigation properties 
