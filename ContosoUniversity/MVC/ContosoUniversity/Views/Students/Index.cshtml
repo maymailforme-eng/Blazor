@@ -8,6 +8,8 @@
 <div class="controls">
 	<h1>Students</h1>
 	<form asp-action="Index" method="get">
+		@* Сохраняем выбранную сортировку при поиске и изменении размера страницы. *@
+		<input type="hidden" name="sortOrder" value="@ViewData["CurrentSort"]" />
 		<label>
 			Поиск по имени:
 			<input type="search" name="SearchString" value="@ViewData["CurrentFilter"]" />
@@ -92,8 +94,10 @@
 }
 
 <div class="pagination-controls">
+	@* Все ссылки передают сортировку, фильтр и размер страницы, сохраняя состояние списка. *@
 	<a asp-action="Index"
 	   asp-route-pageIndex="@(Model.PageIndex - 1)"
+	   asp-route-sortOrder="@ViewData["CurrentSort"]"
 	   asp-route-searchString="@ViewData["CurrentFilter"]"
 	   asp-route-itemsPerPage="@ViewData["ItemsPerPage"]"
 	   class="btn btn-default @prevDisabled">
@@ -105,6 +109,7 @@
 		{
 			<a asp-action="Index"
 			   asp-route-pageIndex="@i"
+			   asp-route-sortOrder="@ViewData["CurrentSort"]"
 			   asp-route-searchString="@ViewData["CurrentFilter"]"
 			   asp-route-itemsPerPage="@ViewData["ItemsPerPage"]"
 			   class=@(i == Model.PageIndex ? "selected-page" : "pagination-item")>
@@ -115,6 +120,7 @@
 
 	<a asp-action="Index"
 	   asp-route-pageIndex="@(Model.PageIndex + 1)"
+	   asp-route-sortOrder="@ViewData["CurrentSort"]"
 	   asp-route-searchString="@ViewData["CurrentFilter"]"
 	   asp-route-itemsPerPage="@ViewData["ItemsPerPage"]"
 	   class="btn btn-default @nextDisabled">

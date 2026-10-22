@@ -25,11 +25,22 @@ namespace ContosoUniversity
             int pageSize
         )
         {
+            // Параметры приходят из URL, поэтому исправляем их, а не прерываем запрос исключением.
+            pageSize = pageSize > 0 ? pageSize : 3;
+            pageIndex = Math.Max(pageIndex, 1);
+
             int count = await source.CountAsync();
-            List<T> items = await source.Skip((pageIndex - 1) * pageSize)
+            int totalPages = (int)Math.Ceiling((double)count / pageSize);
+
+            // Защищаем запрос от отрицательного OFFSET и перехода на несуществующую страницу.
+            int normalizedPageIndex = totalPages == 0
+                ? 1
+                : Math.Clamp(pageIndex, 1, totalPages);
+
+            List<T> items = await source.Skip((normalizedPageIndex - 1) * pageSize)
                                         .Take(pageSize)
                                         .ToListAsync();
-            return new PaginatedList<T>(items, count, pageIndex, pageSize);
+            return new PaginatedList<T>(items, count, normalizedPageIndex, pageSize);
         }
     }
 }

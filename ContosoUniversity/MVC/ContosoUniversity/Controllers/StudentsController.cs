@@ -28,18 +28,25 @@ namespace ContosoUniversity.Controllers
             int itemsPerPage = 3
         )
         {
+            // Размер страницы приходит из query string, поэтому разрешаем только значения из списка в интерфейсе.
+            int[] allowedPageSizes = { 3, 5, 8 };
+            if (!allowedPageSizes.Contains(itemsPerPage))
+            {
+                itemsPerPage = 3;
+            }
+
             ViewData["NameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewData["DateSortParam"] = sortOrder == "date_asc" ? "date_desc" : "date_asc";
+            ViewData["CurrentSort"] = sortOrder;
             //ASC  - Ascending (По возрастанию)
             //DESC - Descending (По убыванию)
             ViewData["CurrentFilter"] = searchString;
 
-            //if (searchString != null)pageIndex = 1;
-
             IQueryable<Student> students = from student in _context.Students select student;
             if (!(String.IsNullOrEmpty(searchString) && String.IsNullOrWhiteSpace(searchString)))
             {
-                pageIndex = 1;
+                // Новый поиск начинается с первой страницы, так как форма не отправляет pageIndex.
+                // Ссылки пагинации передают pageIndex вместе с фильтром, поэтому здесь его не сбрасываем.
                 students = students.Where
                 (
                     student =>
@@ -47,12 +54,14 @@ namespace ContosoUniversity.Controllers
                     student.FirstName.Contains(searchString)
                 );
             }
+
+            // Дополнительная сортировка по ID делает порядок стабильным для одинаковых фамилий и дат.
             switch (sortOrder)
             {
-                case "name_desc": students = students.OrderByDescending(s => s.LastName); break;
-                case "date_desc": students = students.OrderByDescending(s => s.EnrollmentDate); break;
-                case "date_asc": students = students.OrderBy(s => s.EnrollmentDate); break;
-                default: students = students.OrderBy(s => s.LastName); break;
+                case "name_desc": students = students.OrderByDescending(s => s.LastName).ThenBy(s => s.ID); break;
+                case "date_desc": students = students.OrderByDescending(s => s.EnrollmentDate).ThenBy(s => s.ID); break;
+                case "date_asc": students = students.OrderBy(s => s.EnrollmentDate).ThenBy(s => s.ID); break;
+                default: students = students.OrderBy(s => s.LastName).ThenBy(s => s.ID); break;
             }
 
             ViewData["ItemsPerPage"] = itemsPerPage;
