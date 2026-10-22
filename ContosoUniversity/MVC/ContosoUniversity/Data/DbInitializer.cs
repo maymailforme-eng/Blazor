@@ -1,4 +1,4 @@
-﻿#define DB_INIT_1
+﻿#define DB_INIT_2
 
 #if DB_INIT_1
 using ContosoUniversity.Data;
@@ -84,8 +84,11 @@ namespace ContosoUniversity.Data
 	{
 		public static void Initialize(ContosoUniversityContext context)
 		{
-			// Look for any students.
-			if (context.Students.Any())
+
+            context.Database.EnsureCreated();
+
+            // Look for any students.
+            if (context.Students.Any())
 			{
 				return;   // DB has been seeded
 			}
@@ -208,7 +211,7 @@ namespace ContosoUniversity.Data
 			context.AddRange(instructors);
 			context.SaveChanges();
 
-			var officeAssignments = new OfficeAssignment[]
+			var officeAssigments = new OfficeAssignment[]
 			{
 				new OfficeAssignment {
 					Instructor = fakhouri,
@@ -221,7 +224,7 @@ namespace ContosoUniversity.Data
 					Location = "Thompson 304" }
 			};
 
-			context.AddRange(officeAssignments);
+			context.AddRange(officeAssigments);
 			context.SaveChanges();
 
 			var english = new Department
