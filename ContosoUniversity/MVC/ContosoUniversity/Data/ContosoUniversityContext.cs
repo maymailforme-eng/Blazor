@@ -33,6 +33,16 @@ namespace ContosoUniversity.Data
         //}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<OfficeAssignment>()
+                .ToTable("OfficeAssignment");
+
+            modelBuilder.Entity<CourseAssignment>()
+                .ToTable("CourseAssignment");
+
+            modelBuilder.Entity<Department>()
+                .ToTable("Department");
+
+
             modelBuilder.Entity<Department>()
                 .HasOne(department => department.Administrator)
                 .WithMany()
