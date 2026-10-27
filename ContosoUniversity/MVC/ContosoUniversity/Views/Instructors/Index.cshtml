@@ -107,3 +107,28 @@
 		</tbody>
 	</table>
 }
+
+@if(Model.Enrollments != null)
+{
+	<h3>Students enrolles in selected Course</h3>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Grade</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (Enrollment enrollment in Model.Enrollments)
+			{
+				<tr>
+					<td>
+						@enrollment.Student.FullName
+					</td>
+					<td>@Html.DisplayFor(modelItem=> enrollment.Grade)</td>
+				</tr>	
+			}
+		</tbody>
+
+	</table>
+}
