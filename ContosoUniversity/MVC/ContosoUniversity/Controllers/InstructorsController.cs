@@ -144,15 +144,88 @@ namespace ContosoUniversity.Controllers
 
             var instructor = await _context.Instructors
                 .Include(i=>i.OfficeAssignment)
+                .Include(i=>i.CourseAssignment)
+                .ThenInclude(ca=>ca.Course)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m=>m.ID == id);
 
-            if (instructor == null)
-            {
-                return NotFound();
-            }
+            if (instructor == null) { return NotFound(); }
+
+
+
+            PopulateAssignetCourseData(instructor);
             return View(instructor);
         }
+
+
+        void PopulateAssignetCourseData(Instructor instructor)
+        {
+            IQueryable<Course> courses = _context.Courses;
+            HashSet<int> instructorCourses = new HashSet<int>
+            (
+                instructor.CourseAssignment.Select(ca=>ca.CourseID)
+            );
+            List<AssignedCourseData> viewModel = new List<AssignedCourseData>();
+
+            foreach (var course in courses) 
+            {
+                viewModel.Add
+                    (
+                        new AssignedCourseData
+                        {
+                            CourseID = course.CourseID,
+                            Title = course.Title,
+                            Assigned = instructorCourses.Contains(course.CourseID)
+                        }
+                    );
+            }
+
+            ViewData["Courses"] = viewModel;
+        }
+
+        void UpdateInstructorCourses(string[] selectedCourses, Instructor instructor)
+        {
+            //if (selectedCourses == null)
+            //{
+            //    instructor.CourseAssignment = null;
+            //    return;
+            //}
+
+            HashSet<string> selectedCoursesHS = new HashSet<string>(selectedCourses);
+            HashSet<int> instructorCourses = new HashSet<int>
+            (
+                instructor.CourseAssignment.Select(ca => ca.CourseID)
+            );
+
+            foreach (Course course in _context.Courses)
+            {
+                if (selectedCoursesHS.Contains(course.CourseID.ToString()))
+                {
+                    if (!instructorCourses.Contains(course.CourseID))
+                    {
+                        instructor.CourseAssignment.Add
+                        (
+                            new CourseAssignment
+                            {
+                                InstructorID = instructor.ID,
+                                CourseID = course.CourseID
+                            }
+                        );
+                    }
+                    else if (instructorCourses.Contains(course.CourseID))
+                    {
+                        CourseAssignment courseToRemove = instructor
+                                                          .CourseAssignment
+                                                          .FirstOrDefault(ca => ca.CourseID == course.CourseID);
+                        _context.Remove(courseToRemove);
+                    }
+                }
+            }
+
+
+
+        }
+
 
         // POST: Instructors/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -161,12 +234,16 @@ namespace ContosoUniversity.Controllers
         [ValidateAntiForgeryToken]
         //public async Task<IActionResult> EditPost(int? id)
 
-    public async Task<IActionResult> Edit(int id, [Bind("ID,LastName,FirstName,HireDate")] Instructor instructor)
+    public async Task<IActionResult> Edit(int id, 
+                                            [Bind("ID,LastName,FirstName,HireDate")] Instructor instructor,
+                                            string[] selectedCourses)
         {
             if(id == null) return NotFound();
 
             instructor = await _context.Instructors
                 .Include (i=>i.OfficeAssignment)
+                .Include (i=>i.CourseAssignment)
+                .ThenInclude(ca=>ca.Course)
                 .FirstOrDefaultAsync (m=>m.ID == id);
 
 
@@ -184,11 +261,13 @@ namespace ContosoUniversity.Controllers
                     instructor.OfficeAssignment = null;
                 }
 
+                UpdateInstructorCourses(selectedCourses, instructor);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
 
-
+            UpdateInstructorCourses(selectedCourses, instructor);
+            PopulateAssignetCourseData(instructor);
             return View(instructor);
         }
 
