@@ -142,7 +142,11 @@ namespace ContosoUniversity.Controllers
                 return NotFound();
             }
 
-            var instructor = await _context.Instructors.FindAsync(id);
+            var instructor = await _context.Instructors
+                .Include(i=>i.OfficeAssignment)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m=>m.ID == id);
+
             if (instructor == null)
             {
                 return NotFound();
@@ -155,35 +159,70 @@ namespace ContosoUniversity.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,LastName,FirstName,HireDate")] Instructor instructor)
-        {
-            if (id != instructor.ID)
-            {
-                return NotFound();
-            }
+        //public async Task<IActionResult> EditPost(int? id)
 
-            if (ModelState.IsValid)
+    public async Task<IActionResult> Edit(int id, [Bind("ID,LastName,FirstName,HireDate")] Instructor instructor)
+        {
+            if(id == null) return NotFound();
+
+            instructor = await _context.Instructors
+                .Include (i=>i.OfficeAssignment)
+                .FirstOrDefaultAsync (m=>m.ID == id);
+
+
+            bool ok = await TryUpdateModelAsync<Instructor>
+            (
+                instructor,
+                "",
+                i => i.FirstName, i => i.LastName, i => i.HireDate, i => i.OfficeAssignment
+            );
+
+            if (ok)
             {
-                try
+                if (String.IsNullOrWhiteSpace(instructor.OfficeAssignment?.Location))
                 {
-                    _context.Update(instructor);
-                    await _context.SaveChangesAsync();
+                    instructor.OfficeAssignment = null;
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!InstructorExists(instructor.ID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+
             return View(instructor);
         }
+
+
+
+        //public async Task<IActionResult> Edit(int id, [Bind("ID,LastName,FirstName,HireDate")] Instructor instructor)
+        //{
+        //    if (id != instructor.ID)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    if (ModelState.IsValid)
+        //    {
+        //        try
+        //        {
+        //            _context.Update(instructor);
+        //            await _context.SaveChangesAsync();
+        //        }
+        //        catch (DbUpdateConcurrencyException)
+        //        {
+        //            if (!InstructorExists(instructor.ID))
+        //            {
+        //                return NotFound();
+        //            }
+        //            else
+        //            {
+        //                throw;
+        //            }
+        //        }
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    return View(instructor);
+        //}
 
         // GET: Instructors/Delete/5
         public async Task<IActionResult> Delete(int? id)
